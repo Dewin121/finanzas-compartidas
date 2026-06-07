@@ -168,7 +168,7 @@
             "7": { id: 7, nombre: 'Luz', monto: 220000, responsable: 'Dewin', cuotas: 'N/A', fecha: 'Mes', pagado: false },
             "8": { id: 8, nombre: 'Addi', monto: 216000, responsable: 'Dewin', cuotas: '3', fecha: '10', pagado: false },
             "9": { id: 9, nombre: 'Tarjeta', monto: 256000, responsable: 'Dewin', cuotas: 'N/A', fecha: '17', pagado: false },
-            "10": { id: 10, font: 'bold', nombre: 'Bancolombia', monto: 253000, responsable: 'Dewin', cuotas: '12', fecha: '01', pagado: false },
+            "10": { id: 10, nombre: 'Bancolombia', monto: 253000, responsable: 'Dewin', cuotas: '12', fecha: '01', pagado: false },
             "11": { id: 11, nombre: 'Transporte Dewin', monto: 288000, responsable: 'Dewin', cuotas: 'N/A', fecha: 'Mes', pagado: false }
         };
 
@@ -176,7 +176,9 @@
         const metaAhorroTotal = 760000;
 
         function inicializarApp() {
+            // RENDER INMEDIATO: Pintamos la lista local antes de ir a internet para evitar pantallas blancas
             renderizarInterfazLocal();
+            
             descargarDatosNube();
             setInterval(descargarDatosNube, 5000);
         }
@@ -187,17 +189,16 @@
                 if (!res.ok) throw new Error();
                 const data = await res.json();
                 
-                // VALIDACIÓN CRÍTICA: Si la nube no tiene la sección "gastos", forzamos la carga.
                 if (data && data.gastos && Object.keys(data.gastos).length > 0) {
                     memoriaGastos = data.gastos;
                     renderizarInterfazLocal(data);
                     marcarIconoNube('sincronizado');
                 } else {
-                    console.log("Estructura vacía detectada en Firebase. Auto-reparando...");
+                    // Si responde nulo o vacío por culpa de reglas, intentamos poblarla
                     await subirDatosNube();
                 }
             } catch (error) {
-                console.log("Trabajando en local.");
+                console.log("Error de conexión. Manteniendo vista local.");
                 marcarIconoNube('error');
             }
         }
@@ -261,7 +262,7 @@
             document.getElementById('txt-ahorro-dewin').innerText = `$${dewinAhorroVal.toLocaleString('es-CO')} / $400.000`;
 
             let ahorroLili = 0;
-            ['sem1', 'sem2', 'sem3', 'sem4'].forEach(semId => {
+            ['sum1', 'sum2', 'sum3', 'sum4'].forEach(semId => {
                 const chk = document.getElementById(semId);
                 if (!chk) return;
                 if (dataNube) chk.checked = dataNube.ahorrosLili?.[semId] || false;
@@ -299,11 +300,12 @@
             };
             
             try {
-                await fetch(FIREBASE_URL, { 
+                const r = await fetch(FIREBASE_URL, { 
                     method: 'PUT', 
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(payload) 
                 });
+                if(!r.ok) throw new Error();
                 marcarIconoNube('sincronizado');
             } catch (e) { 
                 marcarIconoNube('error'); 
@@ -349,8 +351,4 @@
         }
 
         function renderInitializeForced() {
-            renderizarInterfazLocal();
-            subirDatosNube();
-        }
-
-     
+  
