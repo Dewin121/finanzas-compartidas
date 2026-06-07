@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -200,61 +199,70 @@
         const metaAhorTotal = 760000;
 
         function inicializarApp() {
-            // Renderizado forzado inmediato con los datos locales base
+            // Renderizado base de seguridad instantáneo
             renderizarInterfazLocal(null);
             
-            // Intenta conectar con la nube en segundo plano
+            // Descarga inicial y bucle
             descargarDatosNube();
-            setInterval(descargarDatosNube, 12000);
+            setInterval(descargarDatosNube, 10000);
         }
 
         async function descargarDatosNube() {
             try {
                 const res = await fetch(FIREBASE_URL);
-                if (!res.ok) throw new Error("Error HTTP");
+                if (!res.ok) throw new Error("Error de conexión");
                 const data = await res.json();
                 
-                // Si la nube responde con datos válidos y estructurados
                 if (data && data.gastos) {
-                    let gastosNube = data.gastos;
+                    let datosFormateados = {};
                     
-                    if (Array.isArray(gastosNube)) {
-                        memoriaGastos = {};
-                        gastosNube.forEach((g, idx) => {
-                            if (g && g.nombre) {
+                    // NORMALIZACIÓN: Si Firebase lo guardó como array u objeto con índices numéricos
+                    if (Array.isArray(data.gastos)) {
+                        data.gastos.forEach((g, idx) => {
+                            if (g) {
                                 const idLimpio = g.id ? String(g.id) : "g_" + idx;
-                                memoriaGastos[idLimpio] = {
+                                datosFormateados[idLimpio] = {
                                     id: idLimpio,
-                                    nombre: g.nombre,
+                                    nombre: g.nombre || 'Gasto Desconocido',
                                     monto: parseInt(g.monto) || 0,
                                     responsable: g.responsable || 'Dewin',
                                     cuotas: g.cuotas || 'N/A',
                                     fecha: g.fecha || 'Mes',
-                                    pagado: g.pagado || false
+                                    pagado: g.pagado === true || g.pagado === "true"
                                 };
                             }
                         });
-                    } else if (typeof gastosNube === 'object') {
-                        memoriaGastos = gastosNube;
+                    } else if (typeof data.gastos === 'object') {
+                        // Si ya es un objeto limpio
+                        Object.keys(data.gastos).forEach(key => {
+                            const g = data.gastos[key];
+                            if (g) {
+                                datosFormateados[key] = {
+                                    id: key,
+                                    nombre: g.nombre || 'Gasto',
+                                    monto: parseInt(g.monto) || 0,
+                                    responsable: g.responsable || 'Dewin',
+                                    cuotas: g.cuotas || 'N/A',
+                                    fecha: g.fecha || 'Mes',
+                                    pagado: g.pagado === true || g.pagado === "true"
+                                };
+                            }
+                        });
                     }
+
+                    memoriaGastos = datosFormateados;
                     renderizarInterfazLocal(data);
                     marcarIconoNube('sincronizado');
                 } else {
-                    // Si data viene null o incompleto, no rompemos el flujo, pintamos local
+                    // Si el nodo de gastos está ausente o vacío
                     renderizarInterfazLocal(null);
                     marcarIconoNube('error');
                 }
             } catch (error) {
-                // En caso de fallo de red, se mantiene pintada la memoria local intacta
+                console.log("Error controlado:", error);
                 renderizarInterfazLocal(null);
                 marcarIconoNube('error');
             }
-        }
-
-        function cargarEstructuraPorDefecto() {
-            memoriaGastos = JSON.parse(JSON.stringify(gastosPorDefecto));
-            renderizarInterfazLocal(null);
-            subirDatosNube();
         }
 
         function renderizarInterfazLocal(dataNube = null) {
@@ -270,13 +278,13 @@
             const llaves = Object.keys(memoriaGastos);
 
             if (llaves.length === 0) {
-                contenedor.innerHTML = '<div class="p-8 text-center text-slate-400 text-sm">No hay gastos agregados.</div>';
+                contenedor.innerHTML = '<div class="p-8 text-center text-slate-400 text-sm">No hay gastos en la lista. Presiona "Cargar Base".</div>';
                 return;
             }
 
             llaves.forEach(key => {
                 const gasto = memoriaGastos[key];
-                if (!gasto || !gasto.nombre) return;
+                if (!gasto) return;
                 
                 const isDewin = gasto.responsable === 'Dewin';
                 const tagColor = isDewin ? 'bg-blue-50 text-blue-600 border-blue-100' : 'bg-pink-50 text-pink-600 border-pink-100';
@@ -291,12 +299,12 @@
                         <div class="flex items-center gap-3 flex-1 min-w-0">
                             <input type="checkbox" ${gasto.pagado ? 'checked' : ''} 
                                    class="w-5 h-5 accent-slate-700 cursor-pointer rounded" 
-                                   onchange="cambiarEstadoPago('${gasto.id}', this.checked)">
+                                   onchange="cambiarEstadoPago('${key}', this.checked)">
                             <div class="min-w-0 flex-1">
                                 <div class="flex items-center gap-1.5">
                                     <p class="text-sm truncate ${textStyle}">${gasto.nombre}</p>
-                                    <button onclick="abrirEditor('${gasto.id}')" class="text-blue-500 text-[11px] font-medium px-1 hover:underline cursor-pointer">✏️</button>
-                                    <button onclick="eliminarGasto('${gasto.id}')" class="text-red-400 hover:text-red-600 text-[11px] px-1 cursor-pointer">🗑️</button>
+                                    <button onclick="abrirEditor('${key}')" class="text-blue-500 text-[11px] font-medium px-1 hover:underline cursor-pointer">✏️</button>
+                                    <button onclick="eliminarGasto('${key}')" class="text-red-400 hover:text-red-600 text-[11px] px-1 cursor-pointer">🗑️</button>
                                 </div>
                                 <p class="text-[10px] text-slate-400 truncate mt-0.5">
                                     F. Pago: <span class="font-medium text-slate-600">${gasto.fecha || 'Mes'}</span> | Cuotas: <span class="font-medium text-slate-600">${gasto.cuotas || 'N/A'}</span>
@@ -314,24 +322,16 @@
             });
 
             contenedor.innerHTML = html;
+            
+            // Actualizar Dashboards
             document.getElementById('total-dewin').innerText = `$${totalDewin.toLocaleString('es-CO')}`;
             document.getElementById('total-lili').innerText = `$${totalLili.toLocaleString('es-CO')}`;
 
-            const dewinAhorroVal = dataNube ? (dataNube.ahorroDewin || 0) : parseInt(document.getElementById('range-dewin').value || 0);
+            // Sincronizar Sliders de ahorro de forma segura
+            const dewinAhorroVal = dataNube ? (parseInt(dataNube.ahorroDewin) || 0) : parseInt(document.getElementById('range-dewin').value || 0);
             document.getElementById('range-dewin').value = dewinAhorroVal;
             document.getElementById('txt-ahorro-dewin').innerText = `$${dewinAhorroVal.toLocaleString('es-CO')} / $400.000`;
 
             let ahorroLili = 0;
             ['sem1', 'sem2', 'sem3', 'sem4'].forEach(semId => {
-                const chk = document.getElementById(semId);
-                if (!chk) return;
-                if (dataNube && dataNube.ahorrosLili) {
-                    chk.checked = dataNube.ahorrosLili[semId] || false;
-                }
-                
-                const lbl = document.getElementById(`lbl-${semId}`);
-                if(chk.checked) {
-                    ahorroLili += 90000;
-                    if(lbl) lbl.className = "flex flex-col items-center p-2 rounded-lg border border-pink-300 bg-pink-50 text-pink-600 transition-all cursor-pointer select-none";
-                } else {
-                    if(lbl) lbl.className = "flex flex-col items-center p-2 bg-white rounde
+                const chk =
