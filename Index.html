@@ -183,18 +183,20 @@
         function inicializarEstructura() {
             renderizarInterfazLocal();
             descargarDatosNube();
-            setInterval(descargarDatosNube, 4000);
+            setInterval(descargarDatosNube, 5000);
         }
 
         async function descargarDatosNube() {
             try {
                 const res = await fetch(FIREBASE_URL);
-                if (!res.ok) throw new Error("Error HTTP");
+                if (!res.ok) throw new Error("Error en red");
                 const data = await res.json();
                 
-                // CONTROL FALLBACK EXTRAORDINARIO: Si la respuesta de la nube es nula o inválida, inicializa de una vez.
-                if (!data || !data.gastos || Object.keys(data.gastos).length === 0) {
+                // Si Firebase responde NULL o no tiene gastos, forzamos la inicialización estructural
+                if (!data || !data.gastos) {
+                    console.log("Firebase vacío. Inicializando nodo estructural en la nube...");
                     memoriaGastos = gastosPorDefecto;
+                    renderizarInterfazLocal();
                     await subirDatosNube();
                     return;
                 }
@@ -203,7 +205,7 @@
                 renderizarInterfazLocal(data);
                 marcarIconoNube('sincronizado');
             } catch (error) {
-                console.log("Error de sincronización. Cargando protección estática:", error);
+                console.log("Trabajando en modo local seguro:", error);
                 renderizarInterfazLocal();
                 marcarIconoNube('error');
             }
@@ -218,9 +220,6 @@
             let totalLili = 0;
             let totalPagado = 0;
             let totalCostoMes = 0;
-
-            // Blindaje contra objetos corruptos o nulos en memoria antes del ciclo principal
-            if (!memoriaGastos) { memoriaGastos = gastosPorDefecto; }
 
             Object.keys(memoriaGastos).forEach(key => {
                 const gasto = memoriaGastos[key];
@@ -316,14 +315,22 @@
             };
             
             try {
-                const res = await fetch(FIREBASE_URL, { 
+                await fetch(FIREBASE_URL, { 
                     method: 'PUT', 
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(payload) 
                 });
-                if(!res.ok) throw new Error("Fallo escritura");
                 marcarIconoNube('sincronizado');
             } catch (e) { 
-                console.error("Error subiendo datos:", e);
                 marcarIconoNube('error'); 
-            
+            }
+        }
+
+        function cambiarEstadoPago(id, estado) {
+            if(memoriaGastos[id]) {
+                memoriaGastos[id].pagado = estado;
+                renderInitializeForced();
+            }
+        }
+
+        function abr
