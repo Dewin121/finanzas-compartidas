@@ -1,19 +1,9 @@
-
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Finanzas en Vivo - Diagnóstico</title>
-    <script>
-        window.onerror = function(message, source, lineno, colno, error) {
-            alert("❌ ERROR DETECTADO:\n" + message + "\nLínea: " + lineno + "\nEn: " + source);
-            return false;
-        };
-        window.addEventListener('unhandledrejection', function (event) {
-            alert("❌ PROMESA RECHAZADA:\n" + event.reason);
-        });
-    </script>
+    <title>Finanzas en Vivo - Lili & Dewin</title>
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
 </head>
 <body class="bg-slate-50 text-slate-800 font-sans min-h-screen pb-12">
@@ -72,18 +62,70 @@
         </section>
 
         <section class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
-            <div class="p-5 border-b border-slate-100 flex justify-between items-center">
-                <h2 class="text-sm font-semibold uppercase tracking-wider text-slate-400">
-                    📋 Distribución Transparente
-                </h2>
-                <button onclick="forzarReseteoBaseDatos()" class="text-[11px] bg-red-50 hover:bg-red-100 px-2 py-1 rounded-md font-medium text-red-600 transition-colors">
-                    ⚠️ Forzar Carga Inicial
-                </button>
+            <div class="p-5 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
+                <div>
+                    <h2 class="text-sm font-semibold uppercase tracking-wider text-slate-400">
+                        📋 Gastos Distribuidos
+                    </h2>
+                </div>
+                <div class="flex gap-2">
+                    <button onclick="abrirCreador()" class="text-xs bg-blue-600 hover:bg-blue-700 text-white px-2.5 py-1.5 rounded-lg font-bold shadow-sm transition-colors cursor-pointer">
+                        ➕ Añadir
+                    </button>
+                    <button onclick="forzarReseteoBaseDatos()" class="text-[10px] bg-slate-200 hover:bg-slate-300 px-2 py-1.5 rounded-lg font-medium text-slate-600 transition-colors cursor-pointer" title="Restablecer los 11 gastos base">
+                        🔄 Base
+                    </button>
+                </div>
             </div>
 
-            <div class="divide-y divide-slate-100 min-h-[150px] bg-white" id="lista-gastos">
+            <div class="divide-y divide-slate-100 min-h-[100px] bg-white" id="lista-gastos">
                 </div>
         </section>
+
+        <div id="modal-editor" class="hidden fixed inset-0 bg-slate-900/40 flex items-center justify-center p-4 z-50 animate-fade-in">
+            <div class="bg-white w-full max-w-sm rounded-2xl p-5 shadow-xl space-y-4">
+                <div class="flex justify-between items-center">
+                    <h3 id="edit-titulo" class="text-sm font-bold text-slate-700 uppercase tracking-wide">Formulario de Gasto</h3>
+                    <button onclick="cerrarEditor()" class="text-slate-400 hover:text-slate-600 font-bold text-xl cursor-pointer">&times;</button>
+                </div>
+                
+                <input type="hidden" id="edit-id">
+                
+                <div>
+                    <label class="block text-xs font-semibold text-slate-500 mb-1">Nombre del Gasto</label>
+                    <input type="text" id="edit-nombre" class="w-full bg-slate-50 border border-slate-200 rounded-lg p-2 text-sm font-medium focus:outline-none focus:border-blue-500">
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-500 mb-1">Monto ($)</label>
+                        <input type="number" id="edit-monto" class="w-full bg-slate-50 border border-slate-200 rounded-lg p-2 text-sm font-bold focus:outline-none focus:border-blue-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-500 mb-1">Responsable</label>
+                        <select id="edit-responsable" class="w-full bg-slate-50 border border-slate-200 rounded-lg p-2 text-sm focus:outline-none focus:border-blue-500 font-medium">
+                            <option value="Dewin">Dewin</option>
+                            <option value="Lili">Lili</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-500 mb-1">Cuotas Restantes</label>
+                        <input type="text" id="edit-cuotas" class="w-full bg-slate-50 border border-slate-200 rounded-lg p-2 text-sm focus:outline-none focus:border-blue-500" placeholder="Ej: N/A o 3">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-500 mb-1">Día / Frecuencia</label>
+                        <input type="text" id="edit-fecha" class="w-full bg-slate-50 border border-slate-200 rounded-lg p-2 text-sm focus:outline-none focus:border-blue-500" placeholder="Ej: 15 o Mes">
+                    </div>
+                </div>
+
+                <button onclick="guardarGastoEstructura()" class="w-full bg-blue-600 hover:bg-blue-700 text-white p-2.5 text-sm font-bold rounded-xl shadow-md transition-colors cursor-pointer">
+                    🚀 Guardar Parámetros
+                </button>
+            </div>
+        </div>
 
         <section class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100">
             <h2 class="text-sm font-semibold uppercase tracking-wider text-slate-400 mb-4">
@@ -139,44 +181,46 @@
         const FIREBASE_URL = "https://finanza-88b8e-default-rtdb.firebaseio.com/finanzas.json";
 
         const gastosPorDefecto = {
-            "1": { id: 1, nombre: 'Mercado Semanal', monto: 125000, responsable: 'Lili', cuotas: 'N/A', fecha: 'Semanal', pagado: false },
-            "2": { id: 2, nombre: 'Apoyo Madre', monto: 25000, responsable: 'Lili', cuotas: 'N/A', fecha: 'Semanal', pagado: false },
-            "3": { id: 3, nombre: 'Merienda Valentina', monto: 5000, responsable: 'Lili', cuotas: 'N/A', fecha: 'Semanal', pagado: false },
-            "4": { id: 4, nombre: 'Internet', monto: 60000, responsable: 'Lili', cuotas: 'N/A', fecha: 'Mes', pagado: false },
-            "5": { id: 5, nombre: 'Transporte Lili', monto: 240000, responsable: 'Lili', cuotas: 'N/A', fecha: 'Mes', pagado: false },
-            "6": { id: 6, nombre: 'Arriendo', monto: 370000, responsable: 'Dewin', cuotas: 'N/A', fecha: 'Mes', pagado: false },
-            "7": { id: 7, nombre: 'Luz', monto: 220000, responsable: 'Dewin', cuotas: 'N/A', fecha: 'Mes', pagado: false },
-            "8": { id: 8, nombre: 'Addi', monto: 216000, responsable: 'Dewin', cuotas: '3', fecha: '10', pagado: false },
-            "9": { id: 9, nombre: 'Tarjeta', monto: 256000, responsable: 'Dewin', cuotas: 'N/A', fecha: '17', pagado: false },
-            "10": { id: 10, nombre: 'Bancolombia', monto: 253000, responsable: 'Dewin', cuotas: '12', fecha: '01', pagado: false },
-            "11": { id: 11, nombre: 'Transporte Dewin', monto: 288000, responsable: 'Dewin', cuotas: 'N/A', fecha: 'Mes', pagado: false }
+            "1": { id: "1", nombre: 'Mercado Semanal', monto: 125000, responsable: 'Lili', cuotas: 'N/A', fecha: 'Semanal', pagado: false },
+            "2": { id: "2", nombre: 'Apoyo Madre', monto: 25000, responsable: 'Lili', cuotas: 'N/A', fecha: 'Semanal', pagado: false },
+            "3": { id: "3", nombre: 'Merienda Valentina', monto: 5000, responsable: 'Lili', cuotas: 'N/A', fecha: 'Semanal', pagado: false },
+            "4": { id: "4", nombre: 'Internet', monto: 60000, responsable: 'Lili', cuotas: 'N/A', fecha: 'Mes', pagado: false },
+            "5": { id: "5", nombre: 'Transporte Lili', monto: 240000, responsable: 'Lili', cuotas: 'N/A', fecha: 'Mes', pagado: false },
+            "6": { id: "6", nombre: 'Arriendo', monto: 370000, responsable: 'Dewin', cuotas: 'N/A', fecha: 'Mes', pagado: false },
+            "7": { id: "7", nombre: 'Luz', monto: 220000, responsable: 'Dewin', cuotas: 'N/A', fecha: 'Mes', pagado: false },
+            "8": { id: "8", nombre: 'Addi', monto: 216000, responsable: 'Dewin', cuotas: '3', fecha: '10', pagado: false },
+            "9": { id: "9", nombre: 'Tarjeta', monto: 256000, responsable: 'Dewin', cuotas: 'N/A', fecha: '17', pagado: false },
+            "10": { id: "10", nombre: 'Bancolombia', monto: 253000, responsable: 'Dewin', cuotas: '12', fecha: '01', pagado: false },
+            "11": { id: "11", nombre: 'Transporte Dewin', monto: 288000, responsable: 'Dewin', cuotas: 'N/A', fecha: 'Mes', pagado: false }
         };
 
-        let memoriaGastos = Object.assign({}, gastosPorDefecto);
+        let memoriaGastos = {};
         const metaAhorroTotal = 760000;
 
         function inicializarApp() {
-            renderizarInterfazLocal();
             descargarDatosNube();
-            setInterval(descargarDatosNube, 5000);
+            // Escucha activa cada 4 segundos
+            setInterval(descargarDatosNube, 4000);
         }
 
         async function descargarDatosNube() {
             try {
                 const res = await fetch(FIREBASE_URL);
-                if (!res.ok) throw new Error("Error en Fetch HTTP: " + res.status);
+                if (!res.ok) throw new Error();
                 const data = await res.json();
                 
-                if (data && data.gastos) {
-                    memoriaGastos = data.gastos;
+                // Si la nube tiene datos (aunque estén vacíos los gastos, garantizamos estructura)
+                if (data) {
+                    memoriaGastos = data.gastos || {};
                     renderizarInterfazLocal(data);
                     marcarIconoNube('sincronizado');
                 } else {
+                    // Si Firebase está virgen, inyectamos los por defecto automáticamente
+                    memoriaGastos = Object.assign({}, gastosPorDefecto);
                     await subirDatosNube();
                 }
             } catch (error) {
                 marcarIconoNube('error');
-                console.error(error);
             }
         }
 
@@ -190,38 +234,58 @@
             let totalPagado = 0;
             let totalCostoMes = 0;
 
-            Object.keys(memoriaGastos).forEach(key => {
-                const gasto = memoriaGastos[key];
-                if (!gasto) return;
-                
-                const isDewin = gasto.responsable === 'Dewin';
-                const tagColor = isDewin ? 'bg-blue-50 text-blue-600 border-blue-100' : 'bg-pink-50 text-pink-600 border-pink-100';
-                const textStyle = gasto.pagado ? 'line-through text-slate-300' : 'text-slate-800';
-                
-                totalCostoMes += parseInt(gasto.monto || 0);
-                if(isDewin) totalDewin += parseInt(gasto.monto || 0); else totalLili += parseInt(gasto.monto || 0);
-                if(gasto.pagado) totalPagado += parseInt(gasto.monto || 0);
+            const llaves = Object.keys(memoriaGastos);
 
-                html += `
-                    <div class="p-4 flex items-center justify-between border-b border-slate-100">
-                        <div class="flex items-center gap-3 flex-1 min-w-0">
-                            <input type="checkbox" ${gasto.pagado ? 'checked' : ''} class="w-5 h-5 accent-slate-700 cursor-pointer rounded" onchange="cambiarEstadoPago('${gasto.id}', this.checked)">
-                            <div class="min-w-0 flex-1">
-                                <p class="text-sm font-semibold truncate ${textStyle}">${gasto.nombre}</p>
-                                <p class="text-[10px] text-slate-400 truncate mt-0.5">
-                                    F. Pago: <span class="font-medium text-slate-600">${gasto.fecha}</span> | Cuotas: <span class="font-medium text-slate-600">${gasto.cuotas}</span>
-                                </p>
-                            </div>
-                        </div>
-                        <div class="text-right ml-2">
-                            <p class="text-sm font-bold text-slate-900">$${parseInt(gasto.monto || 0).toLocaleString('es-CO')}</p>
-                            <span class="inline-block text-[9px] uppercase font-bold px-1.5 py-0.5 rounded border ${tagColor}">
-                                ${gasto.responsable}
-                            </span>
-                        </div>
+            if (llaves.length === 0) {
+                html = `
+                    <div class="p-8 text-center text-slate-400 text-sm">
+                        No hay gastos registrados. ¡Añade uno nuevo arriba! ➕
                     </div>
                 `;
-            });
+            } else {
+                llaves.forEach(key => {
+                    const gasto = memoriaGastos[key];
+                    if (!gasto) return;
+                    
+                    const isDewin = gasto.responsable === 'Dewin';
+                    const tagColor = isDewin ? 'bg-blue-50 text-blue-600 border-blue-100' : 'bg-pink-50 text-pink-600 border-pink-100';
+                    const textStyle = gasto.pagado ? 'line-through text-slate-300' : 'text-slate-800 font-semibold';
+                    
+                    totalCostoMes += parseInt(gasto.monto || 0);
+                    if(isDewin) totalDewin += parseInt(gasto.monto || 0); else totalLili += parseInt(gasto.monto || 0);
+                    if(gasto.pagado) totalPagado += parseInt(gasto.monto || 0);
+
+                    html += `
+                        <div class="p-4 flex items-center justify-between hover:bg-slate-50/80 transition-colors">
+                            <div class="flex items-center gap-3 flex-1 min-w-0">
+                                <input type="checkbox" ${gasto.pagado ? 'checked' : ''} 
+                                       class="w-5 h-5 accent-slate-700 cursor-pointer rounded" 
+                                       onchange="cambiarEstadoPago('${gasto.id}', this.checked)">
+                                <div class="min-w-0 flex-1">
+                                    <div class="flex items-center gap-1.5">
+                                        <p class="text-sm truncate ${textStyle}">${gasto.nombre}</p>
+                                        <button onclick="abrirEditor('${gasto.id}')" class="text-blue-500 text-[11px] font-medium px-1 hover:underline cursor-pointer">
+                                            ✏️
+                                        </button>
+                                        <button onclick="eliminarGasto('${gasto.id}')" class="text-red-400 hover:text-red-600 text-[11px] px-1 cursor-pointer">
+                                            🗑️
+                                        </button>
+                                    </div>
+                                    <p class="text-[10px] text-slate-400 truncate mt-0.5">
+                                        F. Pago: <span class="font-medium text-slate-600">${gasto.fecha || 'Mes'}</span> | Cuotas: <span class="font-medium text-slate-600">${gasto.cuotas || 'N/A'}</span>
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="text-right ml-2">
+                                <p class="text-sm font-bold text-slate-900">$${parseInt(gasto.monto || 0).toLocaleString('es-CO')}</p>
+                                <span class="inline-block text-[9px] uppercase font-bold px-1.5 py-0.5 rounded border ${tagColor}">
+                                    ${gasto.responsable}
+                                </span>
+                            </div>
+                        </div>
+                    `;
+                });
+            }
 
             contenedor.innerHTML = html;
             document.getElementById('total-dewin').innerText = `$${totalDewin.toLocaleString('es-CO')}`;
@@ -249,7 +313,7 @@
             });
             document.getElementById('txt-ahorro-lili').innerText = `$${ahorroLili.toLocaleString('es-CO')} / $360.000`;
 
-            const porcPagos = Math.round((totalPagado / totalCostoMes) * 100) || 0;
+            const porcPagos = totalCostoMes > 0 ? Math.round((totalPagado / totalCostoMes) * 100) : 0;
             document.getElementById('pago-porcentaje').innerText = `${porcPagos}%`;
             document.getElementById('pago-barra').style.width = `${porcPagos}%`;
 
@@ -262,63 +326,4 @@
             marcarIconoNube('cargando');
             const payload = {
                 gastos: memoriaGastos,
-                ahorroDewin: parseInt(document.getElementById('range-dewin').value || 0),
-                ahorrosLili: {
-                    sem1: document.getElementById('sem1').checked,
-                    sem2: document.getElementById('sem2').checked,
-                    sem3: document.getElementById('sem3').checked,
-                    sem4: document.getElementById('sem4').checked
-                }
-            };
-            
-            try {
-                const r = await fetch(FIREBASE_URL, { 
-                    method: 'PUT', 
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload) 
-                });
-                if(!r.ok) throw new Error("Fallo en PUT HTTP: " + r.status);
-                marcarIconoNube('sincronizado');
-            } catch (e) { 
-                marcarIconoNube('error'); 
-            }
-        }
-
-        function forzarReseteoBaseDatos() {
-            if(confirm("¿Restablecer base de datos?")) {
-                memoriaGastos = Object.assign({}, gastosPorDefecto);
-                renderInitializeForced();
-            }
-        }
-
-        function cambiarEstadoPago(id, estado) {
-            if(memoriaGastos[id]) {
-                memoriaGastos[id].pagado = estado;
-                renderInitializeForced();
-            }
-        }
-
-        function renderInitializeForced() {
-            renderizarInterfazLocal();
-            subirDatosNube();
-        }
-
-        function marcarIconoNube(estado) {
-            const ind = document.getElementById('indicador-nube');
-            if(!ind) return;
-            if(estado === 'sincronizado') {
-                ind.className = "w-8 h-8 rounded-full bg-emerald-500 flex items-center justify-center text-white text-xs font-bold";
-                ind.innerText = "✓";
-            } else if (estado === 'cargando') {
-                ind.className = "w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center text-white text-xs font-bold animate-pulse";
-                ind.innerText = "...";
-            } else {
-                ind.className = "w-8 h-8 rounded-full bg-amber-500 flex items-center justify-center text-white text-xs font-bold";
-                ind.innerText = "⚠";
-            }
-        }
-
-        inicializarApp();
-    </script>
-</body>
-</html>
+                ahorroDewin: pars
