@@ -192,7 +192,9 @@
                 if (!res.ok) throw new Error("Error HTTP");
                 const data = await res.json();
                 
-                if (!data || !data.gastos) {
+                // CONTROL FALLBACK EXTRAORDINARIO: Si la respuesta de la nube es nula o inválida, inicializa de una vez.
+                if (!data || !data.gastos || Object.keys(data.gastos).length === 0) {
+                    memoriaGastos = gastosPorDefecto;
                     await subirDatosNube();
                     return;
                 }
@@ -201,6 +203,7 @@
                 renderizarInterfazLocal(data);
                 marcarIconoNube('sincronizado');
             } catch (error) {
+                console.log("Error de sincronización. Cargando protección estática:", error);
                 renderizarInterfazLocal();
                 marcarIconoNube('error');
             }
@@ -208,21 +211,28 @@
 
         function renderizarInterfazLocal(dataNube = null) {
             const contenedor = document.getElementById('lista-gastos');
+            if (!contenedor) return;
+            
             let html = '';
             let totalDewin = 0;
             let totalLili = 0;
             let totalPagado = 0;
             let totalCostoMes = 0;
 
+            // Blindaje contra objetos corruptos o nulos en memoria antes del ciclo principal
+            if (!memoriaGastos) { memoriaGastos = gastosPorDefecto; }
+
             Object.keys(memoriaGastos).forEach(key => {
                 const gasto = memoriaGastos[key];
+                if (!gasto) return;
+                
                 const isDewin = gasto.responsable === 'Dewin';
                 const tagColor = isDewin ? 'bg-blue-50 text-blue-600 border-blue-100' : 'bg-pink-50 text-pink-600 border-pink-100';
                 const textStyle = gasto.pagado ? 'line-through text-slate-300' : 'text-slate-800';
                 
-                totalCostoMes += parseInt(gasto.monto);
-                if(isDewin) totalDewin += parseInt(gasto.monto); else totalLili += parseInt(gasto.monto);
-                if(gasto.pagado) totalPagado += parseInt(gasto.monto);
+                totalCostoMes += parseInt(gasto.monto || 0);
+                if(isDewin) totalDewin += parseInt(gasto.monto || 0); else totalLili += parseInt(gasto.monto || 0);
+                if(gasto.pagado) totalPagado += parseInt(gasto.monto || 0);
 
                 html += `
                     <div class="p-4 flex items-center justify-between hover:bg-slate-50 transition-colors">
@@ -247,7 +257,7 @@
                             </div>
                         </div>
                         <div class="text-right ml-2">
-                            <p class="text-sm font-bold text-slate-900">$${parseInt(gasto.monto).toLocaleString('es-CO')}</p>
+                            <p class="text-sm font-bold text-slate-900">$${parseInt(gasto.monto || 0).toLocaleString('es-CO')}</p>
                             <span class="inline-block text-[9px] uppercase font-bold px-1.5 py-0.5 rounded-md border mt-1 ${tagColor}">
                                 ${gasto.responsable}
                             </span>
@@ -260,22 +270,23 @@
             document.getElementById('total-dewin').innerText = `$${totalDewin.toLocaleString('es-CO')}`;
             document.getElementById('total-lili').innerText = `$${totalLili.toLocaleString('es-CO')}`;
 
-            const dewinAhorroVal = dataNube ? (dataNube.ahorroDewin || 0) : parseInt(document.getElementById('range-dewin').value);
+            const dewinAhorroVal = dataNube ? (dataNube.ahorroDewin || 0) : parseInt(document.getElementById('range-dewin').value || 0);
             document.getElementById('range-dewin').value = dewinAhorroVal;
             document.getElementById('txt-ahorro-dewin').innerText = `$${dewinAhorroVal.toLocaleString('es-CO')} / $400.000`;
 
             let ahorroLili = 0;
             ['sem1', 'sem2', 'sem3', 'sem4'].forEach(semId => {
                 const chk = document.getElementById(semId);
+                if (!chk) return;
                 if (dataNube) {
                     chk.checked = dataNube.ahorrosLili?.[semId] || false;
                 }
                 const lbl = document.getElementById(`lbl-${semId}`);
                 if(chk.checked) {
                     ahorroLili += 90000;
-                    lbl.className = "flex flex-col items-center p-2 rounded-lg border border-pink-300 bg-pink-50/50 cursor-pointer select-none transition-all";
+                    if(lbl) lbl.className = "flex flex-col items-center p-2 rounded-lg border border-pink-300 bg-pink-50/50 cursor-pointer select-none transition-all";
                 } else {
-                    lbl.className = "flex flex-col items-center p-2 bg-white rounded-lg border border-slate-200 cursor-pointer select-none transition-all";
+                    if(lbl) lbl.className = "flex flex-col items-center p-2 bg-white rounded-lg border border-slate-200 cursor-pointer select-none transition-all";
                 }
             });
             document.getElementById('txt-ahorro-lili').innerText = `$${ahorroLili.toLocaleString('es-CO')} / $360.000`;
@@ -295,7 +306,7 @@
             marcarIconoNube('cargando');
             const payload = {
                 gastos: memoriaGastos,
-                ahorroDewin: parseInt(document.getElementById('range-dewin').value),
+                ahorroDewin: parseInt(document.getElementById('range-dewin').value || 0),
                 ahorrosLili: {
                     sem1: document.getElementById('sem1').checked,
                     sem2: document.getElementById('sem2').checked,
@@ -305,31 +316,14 @@
             };
             
             try {
-                await fetch(FIREBASE_URL, { method: 'PUT', body: JSON.stringify(payload) });
+                const res = await fetch(FIREBASE_URL, { 
+                    method: 'PUT', 
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload) 
+                });
+                if(!res.ok) throw new Error("Fallo escritura");
                 marcarIconoNube('sincronizado');
-            } catch (e) { marcarIconoNube('error'); }
-        }
-
-        function cambiarEstadoPago(id, estado) {
-            memoriaGastos[id].pagado = estado;
-            renderInitializeForced();
-        }
-
-        function abrirEditor(id) {
-            const gasto = memoriaGastos[id];
-            document.getElementById('edit-id').value = id;
-            document.getElementById('edit-titulo').innerText = `Editar: ${gasto.nombre}`;
-            document.getElementById('edit-monto').value = gasto.monto;
-            document.getElementById('edit-cuotas').value = gasto.cuotas;
-            document.getElementById('edit-fecha').value = gasto.fecha;
-            document.getElementById('modal-editor').classList.remove('hidden');
-            lucide.createIcons();
-        }
-
-        function cerrarEditor() {
-            document.getElementById('modal-editor').classList.add('hidden');
-        }
-
-        function guardarCambiosGasto() {
-            const id = document.getElementById('edit-id').value;
-  
+            } catch (e) { 
+                console.error("Error subiendo datos:", e);
+                marcarIconoNube('error'); 
+            
