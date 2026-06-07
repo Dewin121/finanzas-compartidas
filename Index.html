@@ -1,11 +1,11 @@
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Finanzas en Vivo - Lili & Dewin</title>
-    <!-- CDN Clásico y Ultra Compatible de Tailwind v3 -->
-    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/custom-forms@0.2.1/dist/custom-forms.min.css" integrity="" crossorigin="anonymous"></script>
+    <!-- Única dependencia externa: CSS de Tailwind v3 estándar -->
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-slate-50 text-slate-800 font-sans min-h-screen pb-12">
@@ -50,7 +50,7 @@
                         <span id="pago-porcentaje" class="text-blue-600 font-bold">0%</span>
                     </div>
                     <div class="w-full bg-slate-100 rounded-full h-2.5 overflow-hidden">
-                        <div id="pago-barra" class="bg-blue-600 h-2.5 rounded-full transition-all duration-500" style="width: 0%"></div>
+                        <div id="pago-barra" class="bg-blue-600 h-2.5 rounded-full" style="width: 0%"></div>
                     </div>
                 </div>
 
@@ -60,7 +60,7 @@
                         <span id="ahorro-porcentaje" class="text-emerald-600 font-bold">0%</span>
                     </div>
                     <div class="w-full bg-slate-100 rounded-full h-2.5 overflow-hidden">
-                        <div id="ahorro-barra" class="bg-emerald-500 h-2.5 rounded-full transition-all duration-500" style="width: 0%"></div>
+                        <div id="ahorro-barra" class="bg-emerald-500 h-2.5 rounded-full" style="width: 0%"></div>
                     </div>
                 </div>
             </div>
@@ -75,17 +75,17 @@
                     </h2>
                 </div>
                 <div class="flex gap-2">
-                    <button onclick="abrirCreador()" class="text-xs bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded-lg font-bold shadow-sm transition-colors cursor-pointer">
+                    <button onclick="abrirCreador()" class="text-xs bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded-lg font-bold shadow-sm">
                         ➕ Añadir Gasto
                     </button>
-                    <button onclick="forzarReseteoBaseDatos()" class="text-xs bg-slate-200 hover:bg-slate-300 px-3 py-2 rounded-lg font-medium text-slate-600 transition-colors cursor-pointer">
+                    <button onclick="forzarReseteoBaseDatos()" class="text-xs bg-slate-200 hover:bg-slate-300 px-3 py-2 rounded-lg font-medium text-slate-600">
                         🔄 Cargar Base
                     </button>
                 </div>
             </div>
 
             <div class="divide-y divide-slate-100 min-h-[100px] bg-white" id="lista-gastos">
-                <div class="p-8 text-center text-slate-400 text-sm">Esperando script local...</div>
+                <div class="p-8 text-center text-slate-400 text-sm">Ejecutando script limpio...</div>
             </div>
         </section>
 
@@ -94,7 +94,7 @@
             <div class="bg-white w-full max-w-sm rounded-2xl p-5 shadow-xl space-y-4">
                 <div class="flex justify-between items-center">
                     <h3 id="edit-titulo" class="text-sm font-bold text-slate-700 uppercase tracking-wide">Formulario de Gasto</h3>
-                    <button onclick="cerrarEditor()" class="text-slate-400 hover:text-slate-600 font-bold text-xl cursor-pointer">&times;</button>
+                    <button onclick="cerrarEditor()" class="text-slate-400 hover:text-slate-600 font-bold text-xl">&times;</button>
                 </div>
                 
                 <input type="hidden" id="edit-id">
@@ -129,7 +129,7 @@
                     </div>
                 </div>
 
-                <button onclick="guardarGastoEstructura()" class="w-full bg-blue-600 hover:bg-blue-700 text-white p-2.5 text-sm font-bold rounded-xl shadow-md transition-colors cursor-pointer">
+                <button onclick="guardarGastoEstructura()" class="w-full bg-blue-600 hover:bg-blue-700 text-white p-2.5 text-sm font-bold rounded-xl shadow-md">
                     🚀 Guardar Gasto
                 </button>
             </div>
@@ -149,7 +149,7 @@
                         </span>
                         <span class="text-xs text-slate-500 font-medium" id="txt-ahorro-dewin">$0 / $400.000</span>
                     </div>
-                    <input type="range" id="range-dewin" min="0" max="400000" step="50000" value="0" class="w-full accent-blue-600 h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer" onchange="subirDatosNube()">
+                    <input type="range" id="range-dewin" min="0" max="400000" step="50000" value="0" class="w-full accent-blue-600 h-1.5 bg-slate-200 rounded-lg appearance-none" onchange="subirDatosNube()">
                 </div>
 
                 <div class="p-3 bg-slate-50 rounded-xl border border-slate-200/60">
@@ -160,22 +160,22 @@
                         <span class="text-xs text-slate-500 font-medium" id="txt-ahorro-lili">$0 / $360.000</span>
                     </div>
                     <div class="grid grid-cols-4 gap-2 mt-2">
-                        <label id="lbl-sem1" class="flex flex-col items-center p-2 bg-white rounded-lg border border-slate-200 cursor-pointer select-none">
+                        <label id="lbl-sem1" class="flex flex-col items-center p-2 bg-white rounded-lg border border-slate-200 select-none">
                             <span class="text-[10px] text-slate-400 font-medium">Sem 1</span>
                             <span class="text-[11px] font-bold text-slate-700 mt-0.5">$90k</span>
                             <input type="checkbox" id="sem1" class="hidden" value="90000" onchange="subirDatosNube()">
                         </label>
-                        <label id="lbl-sem2" class="flex flex-col items-center p-2 bg-white rounded-lg border border-slate-200 cursor-pointer select-none">
+                        <label id="lbl-sem2" class="flex flex-col items-center p-2 bg-white rounded-lg border border-slate-200 select-none">
                             <span class="text-[10px] text-slate-400 font-medium">Sem 2</span>
                             <span class="text-[11px] font-bold text-slate-700 mt-0.5">$90k</span>
                             <input type="checkbox" id="sem2" class="hidden" value="90000" onchange="subirDatosNube()">
                         </label>
-                        <label id="lbl-sem3" class="flex flex-col items-center p-2 bg-white rounded-lg border border-slate-200 cursor-pointer select-none">
+                        <label id="lbl-sem3" class="flex flex-col items-center p-2 bg-white rounded-lg border border-slate-200 select-none">
                             <span class="text-[10px] text-slate-400 font-medium">Sem 3</span>
                             <span class="text-[11px] font-bold text-slate-700 mt-0.5">$90k</span>
                             <input type="checkbox" id="sem3" class="hidden" value="90000" onchange="subirDatosNube()">
                         </label>
-                        <label id="lbl-sem4" class="flex flex-col items-center p-2 bg-white rounded-lg border border-slate-200 cursor-pointer select-none">
+                        <label id="lbl-sem4" class="flex flex-col items-center p-2 bg-white rounded-lg border border-slate-200 select-none">
                             <span class="text-[10px] text-slate-400 font-medium">Sem 4</span>
                             <span class="text-[11px] font-bold text-slate-700 mt-0.5">$90k</span>
                             <input type="checkbox" id="sem4" class="hidden" value="90000" onchange="subirDatosNube()">
@@ -185,19 +185,27 @@
             </div>
         </section>
 
-        <!-- CONSOLA DE DIAGNÓSTICO ACTIVA -->
+        <!-- CONSOLA DE DIAGNÓSTICO -->
         <section class="bg-slate-900 text-amber-400 p-4 rounded-2xl shadow-inner font-mono text-[11px] border-2 border-slate-800">
             <div class="flex justify-between items-center border-b border-slate-800 pb-1.5 mb-1.5 text-slate-400">
                 <span>🖥️ CONSOLA DE DIAGNÓSTICO</span>
-                <button onclick="document.getElementById('log-terminal').innerHTML=''" class="text-[9px] bg-slate-800 px-1.5 py-0.5 rounded text-white cursor-pointer">Limpiar</button>
+                <button onclick="document.getElementById('log-terminal').innerHTML=''" class="text-[9px] bg-slate-800 px-1.5 py-0.5 rounded text-white">Limpiar</button>
             </div>
-            <div id="log-terminal" class="space-y-1 max-h-[120px] overflow-y-auto"></div>
+            <div id="log-terminal" class="space-y-1 max-h-[120px] overflow-y-auto">
+                <div>[Sistema] Esperando inicialización...</div>
+            </div>
         </section>
 
     </main>
 
-    <!-- EL SCRIPT SE COLOCA AL FINAL PARA ASEGURAR QUE EL DOM EXISTA ANTES DE ENTRAR EN ACCIÓN -->
     <script>
+        // Monitoreo inmediato de excepciones globales antes de arrancar nada más
+        window.onerror = function(msg, url, line) {
+            const t = document.getElementById('log-terminal');
+            if(t) t.innerHTML += `<div class="text-red-400 font-bold">[ERR L${line}] ${msg}</div>`;
+            return false;
+        };
+
         const FIREBASE_BASE_URL = "https://finanza-88b8e-default-rtdb.firebaseio.com/finanzas.json";
 
         const gastosPorDefecto = {
@@ -223,28 +231,20 @@
                 const color = esError ? 'text-red-400 font-bold' : 'text-emerald-400';
                 t.innerHTML += `<div class="${color}">[${new Date().toLocaleTimeString()}] ${texto}</div>`;
                 t.scrollTop = t.scrollHeight;
-            } else {
-                console.log(texto);
             }
         }
 
-        // CAPTURA INTERNA DE EXCEPCIONES
-        window.onerror = function(msg, url, line) {
-            imprimirLog(`ERROR EN LÍNEA ${line}: ${msg}`, true);
-            return false;
-        };
-
         function inicializarApp() {
             try {
-                imprimirLog("Iniciando componentes...");
+                imprimirLog("Iniciando entorno local...");
                 memoriaGastos = JSON.parse(JSON.stringify(gastosPorDefecto));
                 renderizarInterfazLocal(null);
-                imprimirLog("DOM Local Renderizado.");
+                imprimirLog("Interfaz renderizada con éxito.");
                 
                 descargarDatosNube();
                 setInterval(descargarDatosNube, 12000);
             } catch(e) {
-                imprimirLog("Error en boot: " + e.message, true);
+                imprimirLog("Error en inicialización: " + e.message, true);
             }
         }
 
@@ -257,13 +257,13 @@
                 if (!res.ok) throw new Error(`HTTP ${res.status}`);
                 
                 const data = await res.json();
-                imprimirLog("Datos crudos de nube leídos.");
+                imprimirLog("Respuesta cruda de Firebase leída.");
 
                 if (data && data.gastos) {
                     let datosFormateados = {};
                     
                     if (Array.isArray(data.gastos)) {
-                        imprimirLog("Mapeando Arreglo -> Objeto...");
+                        imprimirLog("Formato: Arreglo.");
                         data.gastos.forEach((g, idx) => {
                             if (g) {
                                 const idLimpio = g.id ? String(g.id) : "g_" + idx;
@@ -279,7 +279,7 @@
                             }
                         });
                     } else if (typeof data.gastos === 'object') {
-                        imprimirLog("Leyendo Objeto puro...");
+                        imprimirLog("Formato: Objeto.");
                         Object.keys(data.gastos).forEach(key => {
                             const g = data.gastos[key];
                             if (g) {
@@ -299,14 +299,14 @@
                     memoriaGastos = datosFormateados;
                     renderizarInterfazLocal(data);
                     marcarIconoNube('sincronizado');
-                    imprimirLog("Nube sincronizada.");
+                    imprimirLog("Sincronización completa.");
                 } else {
-                    imprimirLog("Sin datos en nube. Conservando esquema base.");
+                    imprimirLog("Estructura vacía en la nube. Conservando local.");
                     renderizarInterfazLocal(null);
                     marcarIconoNube('error');
                 }
             } catch (error) {
-                imprimirLog(`Fallo Fetch: ${error.message}`, true);
+                imprimirLog(`Error de red: ${error.message}`, true);
                 renderizarInterfazLocal(null);
                 marcarIconoNube('error');
             }
@@ -326,7 +326,7 @@
                 const llaves = Object.keys(memoriaGastos);
 
                 if (llaves.length === 0) {
-                    contenedor.innerHTML = '<div class="p-8 text-center text-slate-400 text-sm">Lista vacía.</div>';
+                    contenedor.innerHTML = '<div class="p-8 text-center text-slate-400 text-sm">No hay gastos en memoria.</div>';
                     return;
                 }
 
@@ -347,4 +347,8 @@
                             <div class="flex items-center gap-3 flex-1 min-w-0">
                                 <input type="checkbox" ${gasto.pagado ? 'checked' : ''} 
                                        class="w-5 h-5 rounded text-slate-700" 
-                                       o
+                                       onchange="cambiarEstadoPago('${key}', this.checked)">
+                                <div class="min-w-0 flex-1">
+                                    <div class="flex items-center gap-1.5">
+                                        <p class="text-sm truncate ${textStyle}">${gasto.nombre}</p>
+                          
