@@ -79,7 +79,8 @@
             </div>
 
             <div class="divide-y divide-slate-100 min-h-[100px] bg-white" id="lista-gastos">
-                </div>
+                <div class="p-8 text-center text-slate-400 text-sm">Conectando con la billetera...</div>
+            </div>
         </section>
 
         <div id="modal-editor" class="hidden fixed inset-0 bg-slate-900/40 flex items-center justify-center p-4 z-50">
@@ -190,7 +191,7 @@
             "g7": { id: "g7", nombre: 'Luz', monto: 220000, responsable: 'Dewin', cuotas: 'Mes', pagado: false },
             "g8": { id: "g8", nombre: 'Addi', monto: 216000, responsable: 'Dewin', cuotas: '3', fecha: '10', pagado: false },
             "g9": { id: "g9", nombre: 'Tarjeta', monto: 256000, responsable: 'Dewin', cuotas: 'N/A', fecha: '17', pagado: false },
-            "g10": { id: "g10", font: 'Bancolombia', nombre: 'Bancolombia', monto: 253000, responsable: 'Dewin', cuotas: '12', fecha: '01', pagado: false },
+            "g10": { id: "g10", nombre: 'Bancolombia', monto: 253000, responsable: 'Dewin', cuotas: '12', fecha: '01', pagado: false },
             "g11": { id: "g11", nombre: 'Transporte Dewin', monto: 288000, responsable: 'Dewin', cuotas: 'N/A', fecha: 'Mes', pagado: false }
         };
 
@@ -209,13 +210,21 @@
                 const data = await res.json();
                 
                 if (data && data.gastos) {
-                    // NORMALIZACIÓN: Si Firebase lo devolvió como Array por culpa de los índices numéricos, lo convertimos a objeto limpio
+                    // Si viene como Array por los viejos índices numéricos, lo convertimos de forma ultra-segura
                     if (Array.isArray(data.gastos)) {
                         memoriaGastos = {};
-                        data.gastos.forEach((g, index) => {
-                            if (g) {
-                                const idLimpio = g.id ? String(g.id) : "g_" + index;
-                                memoriaGastos[idLimpio] = g;
+                        data.gastos.forEach((g, idx) => {
+                            if (g && g.nombre) {
+                                const idLimpio = g.id ? String(g.id) : "g_" + idx;
+                                memoriaGastos[idLimpio] = {
+                                    id: idLimpio,
+                                    nombre: g.nombre,
+                                    monto: parseInt(g.monto) || 0,
+                                    responsable: g.responsable || 'Dewin',
+                                    cuotas: g.cuotas || 'N/A',
+                                    fecha: g.fecha || 'Mes',
+                                    pagado: g.pagado || false
+                                };
                             }
                         });
                     } else {
@@ -224,14 +233,18 @@
                     renderizarInterfazLocal(data);
                     marcarIconoNube('sincronizado');
                 } else {
-                    // Si está totalmente vacío o corrupto, inyectamos la base por defecto
-                    memoriaGastos = Object.assign({}, gastosPorDefecto);
-                    renderizarInterfazLocal(null);
-                    await subirDatosNube();
+                    // Si Firebase no tiene la propiedad .gastos estructurada
+                    cargarEstructuraPorDefecto();
                 }
             } catch (error) {
                 marcarIconoNube('error');
             }
+        }
+
+        function cargarEstructuraPorDefecto() {
+            memoriaGastos = JSON.parse(JSON.stringify(gastosPorDefecto));
+            renderizarInterfazLocal(null);
+            subirDatosNube();
         }
 
         function renderizarInterfazLocal(dataNube = null) {
@@ -247,7 +260,7 @@
             const llaves = Object.keys(memoriaGastos);
 
             if (llaves.length === 0) {
-                html = `<div class="p-8 text-center text-slate-400 text-sm">No hay gastos registrados. Oprime 'Cargar Base'.</div>`;
+                html = `<div class="p-8 text-center text-slate-400 text-sm">No hay gastos en memoria. Presiona 'Cargar Base'.</div>`;
             } else {
                 llaves.forEach(key => {
                     const gasto = memoriaGastos[key];
@@ -315,16 +328,4 @@
             });
             document.getElementById('txt-ahorro-lili').innerText = `$${ahorroLili.toLocaleString('es-CO')} / $360.000`;
 
-            const porcPagos = totalCostoMes > 0 ? Math.round((totalPagado / totalCostoMes) * 100) : 0;
-            document.getElementById('pago-porcentaje').innerText = `${porcPagos}%`;
-            document.getElementById('pago-barra').style.width = `${porcPagos}%`;
-
-            const porcAhorro = Math.round(((dewinAhorroVal + ahorroLili) / metaAhorTotal) * 100) || 0;
-            document.getElementById('ahorro-porcentaje').innerText = `${porcAhorro}%`;
-            document.getElementById('ahorro-barra').style.width = `${porcAhorro}%`;
-        }
-
-        async function subirDatosNube() {
-            marcarIconoNube('cargando');
-            const payload = {
-                gastos: memoriaGast
+            const porcPagos = totalCostoMes > 0 ? Math.round((totalPagado / totalCostoMes) * 100) 
