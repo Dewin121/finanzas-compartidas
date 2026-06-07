@@ -1,11 +1,11 @@
-
+ 
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Finanzas en Vivo - Lili & Dewin</title>
-    <!-- Única dependencia externa: CSS de Tailwind v3 estándar -->
+    <!-- CSS de Tailwind v3 estándar -->
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-slate-50 text-slate-800 font-sans min-h-screen pb-12">
@@ -85,7 +85,7 @@
             </div>
 
             <div class="divide-y divide-slate-100 min-h-[100px] bg-white" id="lista-gastos">
-                <div class="p-8 text-center text-slate-400 text-sm">Ejecutando script limpio...</div>
+                <div class="p-8 text-center text-slate-400 text-sm">Ejecutando script ultra-compatible...</div>
             </div>
         </section>
 
@@ -199,16 +199,18 @@
     </main>
 
     <script>
-        // Monitoreo inmediato de excepciones globales antes de arrancar nada más
+        // Manejador de errores tradicional
         window.onerror = function(msg, url, line) {
-            const t = document.getElementById('log-terminal');
-            if(t) t.innerHTML += `<div class="text-red-400 font-bold">[ERR L${line}] ${msg}</div>`;
+            var t = document.getElementById('log-terminal');
+            if (t) {
+                t.innerHTML += '<div class="text-red-400 font-bold">[ERR L' + line + '] ' + msg + '</div>';
+            }
             return false;
         };
 
-        const FIREBASE_BASE_URL = "https://finanza-88b8e-default-rtdb.firebaseio.com/finanzas.json";
+        var FIREBASE_BASE_URL = "https://finanza-88b8e-default-rtdb.firebaseio.com/finanzas.json";
 
-        const gastosPorDefecto = {
+        var gastosPorDefecto = {
             "g1": { id: "g1", nombre: 'Mercado Semanal', monto: 125000, responsable: 'Lili', cuotas: 'N/A', fecha: 'Semanal', pagado: false },
             "g2": { id: "g2", nombre: 'Apoyo Madre', monto: 25000, responsable: 'Lili', cuotas: 'N/A', fecha: 'Semanal', pagado: false },
             "g3": { id: "g3", nombre: 'Merienda Valentina', monto: 5000, responsable: 'Lili', cuotas: 'N/A', fecha: 'Semanal', pagado: false },
@@ -222,133 +224,131 @@
             "g11": { id: "g11", nombre: 'Transporte Dewin', monto: 288000, responsable: 'Dewin', cuotas: 'N/A', fecha: 'Mes', pagado: false }
         };
 
-        let memoriaGastos = {};
-        const metaAhorTotal = 760000;
+        var memoriaGastos = {};
+        var metaAhorTotal = 760000;
 
-        function imprimirLog(texto, esError = false) {
-            const t = document.getElementById('log-terminal');
-            if(t) {
-                const color = esError ? 'text-red-400 font-bold' : 'text-emerald-400';
-                t.innerHTML += `<div class="${color}">[${new Date().toLocaleTimeString()}] ${texto}</div>`;
+        function imprimirLog(texto, esError) {
+            var t = document.getElementById('log-terminal');
+            if (t) {
+                var color = esError ? 'text-red-400 font-bold' : 'text-emerald-400';
+                var hora = new Date().toLocaleTimeString();
+                t.innerHTML += '<div class="' + color + '">[' + hora + '] ' + texto + '</div>';
                 t.scrollTop = t.scrollHeight;
             }
         }
 
         function inicializarApp() {
             try {
-                imprimirLog("Iniciando entorno local...");
+                imprimirLog("Iniciando entorno local...", false);
                 memoriaGastos = JSON.parse(JSON.stringify(gastosPorDefecto));
                 renderizarInterfazLocal(null);
-                imprimirLog("Interfaz renderizada con éxito.");
+                imprimirLog("Interfaz inicializada de forma segura.", false);
                 
                 descargarDatosNube();
                 setInterval(descargarDatosNube, 12000);
-            } catch(e) {
+            } catch (e) {
                 imprimirLog("Error en inicialización: " + e.message, true);
             }
         }
 
-        async function descargarDatosNube() {
+        function descargarDatosNube() {
             try {
-                const urlAntiCache = `${FIREBASE_BASE_URL}?v=${Date.now()}`;
-                imprimirLog("Llamando a Firebase...");
+                var urlAntiCache = FIREBASE_BASE_URL + "?v=" + Date.now();
+                imprimirLog("Llamando a Firebase...", false);
                 
-                const res = await fetch(urlAntiCache);
-                if (!res.ok) throw new Error(`HTTP ${res.status}`);
-                
-                const data = await res.json();
-                imprimirLog("Respuesta cruda de Firebase leída.");
-
-                if (data && data.gastos) {
-                    let datosFormateados = {};
-                    
-                    if (Array.isArray(data.gastos)) {
-                        imprimirLog("Formato: Arreglo.");
-                        data.gastos.forEach((g, idx) => {
-                            if (g) {
-                                const idLimpio = g.id ? String(g.id) : "g_" + idx;
-                                datosFormateados[idLimpio] = {
-                                    id: idLimpio,
-                                    nombre: g.nombre || 'Gasto',
-                                    monto: parseInt(g.monto) || 0,
-                                    responsable: g.responsable || 'Dewin',
-                                    cuotas: g.cuotas || 'N/A',
-                                    fecha: g.fecha || 'Mes',
-                                    pagado: g.pagado === true || g.pagado === "true"
-                                };
+                fetch(urlAntiCache)
+                    .then(function(res) {
+                        if (!res.ok) throw new Error("HTTP " + res.status);
+                        return res.json();
+                    })
+                    .then(function(data) {
+                        imprimirLog("Datos crudos obtenidos de la nube.", false);
+                        if (data && data.gastos) {
+                            var datosFormateados = {};
+                            
+                            if (Array.isArray(data.gastos)) {
+                                imprimirLog("Estructura detectada: Arreglo.", false);
+                                data.gastos.forEach(function(g, idx) {
+                                    if (g) {
+                                        var idLimpio = g.id ? String(g.id) : "g_" + idx;
+                                        datosFormateados[idLimpio] = {
+                                            id: idLimpio,
+                                            nombre: g.nombre || 'Gasto',
+                                            monto: parseInt(g.monto) || 0,
+                                            responsable: g.responsable || 'Dewin',
+                                            cuotas: g.cuotas || 'N/A',
+                                            fecha: g.fecha || 'Mes',
+                                            pagado: g.pagado === true || g.pagado === "true"
+                                        };
+                                    }
+                                });
+                            } else if (typeof data.gastos === 'object') {
+                                imprimirLog("Estructura detectada: Objeto.", false);
+                                Object.keys(data.gastos).forEach(function(key) {
+                                    var g = data.gastos[key];
+                                    if (g) {
+                                        datosFormateados[key] = {
+                                            id: key,
+                                            nombre: g.nombre || 'Gasto',
+                                            monto: parseInt(g.monto) || 0,
+                                            responsable: g.responsable || 'Dewin',
+                                            cuotas: g.cuotas || 'N/A',
+                                            fecha: g.fecha || 'Mes',
+                                            pagado: g.pagado === true || g.pagado === "true"
+                                        };
+                                    }
+                                });
                             }
-                        });
-                    } else if (typeof data.gastos === 'object') {
-                        imprimirLog("Formato: Objeto.");
-                        Object.keys(data.gastos).forEach(key => {
-                            const g = data.gastos[key];
-                            if (g) {
-                                datosFormateados[key] = {
-                                    id: key,
-                                    nombre: g.nombre || 'Gasto',
-                                    monto: parseInt(g.monto) || 0,
-                                    responsable: g.responsable || 'Dewin',
-                                    cuotas: g.cuotas || 'N/A',
-                                    fecha: g.fecha || 'Mes',
-                                    pagado: g.pagado === true || g.pagado === "true"
-                                };
-                            }
-                        });
-                    }
 
-                    memoriaGastos = datosFormateados;
-                    renderizarInterfazLocal(data);
-                    marcarIconoNube('sincronizado');
-                    imprimirLog("Sincronización completa.");
-                } else {
-                    imprimirLog("Estructura vacía en la nube. Conservando local.");
-                    renderizarInterfazLocal(null);
-                    marcarIconoNube('error');
-                }
-            } catch (error) {
-                imprimirLog(`Error de red: ${error.message}`, true);
-                renderizarInterfazLocal(null);
-                marcarIconoNube('error');
+                            memoriaGastos = datosFormateados;
+                            renderizarInterfazLocal(data);
+                            marcarIconoNube('sincronizado');
+                            imprimirLog("Sincronización completa.", false);
+                        } else {
+                            imprimirLog("Estructura vacía. Usando valores por defecto.", false);
+                            renderizarInterfazLocal(null);
+                            marcarIconoNube('error');
+                        }
+                    })
+                    .catch(function(error) {
+                        imprimirLog("Error en procesamiento de red: " + error.message, true);
+                        renderizarInterfazLocal(null);
+                        marcarIconoNube('error');
+                    });
+            } catch (err) {
+                imprimirLog("Excepción en fetch: " + err.message, true);
             }
         }
 
-        function renderizarInterfazLocal(dataNube = null) {
+        function renderizarInterfazLocal(dataNube) {
             try {
-                const contenedor = document.getElementById('lista-gastos');
+                var contenedor = document.getElementById('lista-gastos');
                 if (!contenedor) return;
                 
-                let html = '';
-                let totalDewin = 0;
-                let totalLili = 0;
-                let totalPagado = 0;
-                let totalCostoMes = 0;
+                var html = '';
+                var totalDewin = 0;
+                var totalLili = 0;
+                var totalPagado = 0;
+                var totalCostoMes = 0;
 
-                const llaves = Object.keys(memoriaGastos);
+                var llaves = Object.keys(memoriaGastos);
 
                 if (llaves.length === 0) {
                     contenedor.innerHTML = '<div class="p-8 text-center text-slate-400 text-sm">No hay gastos en memoria.</div>';
                     return;
                 }
 
-                llaves.forEach(key => {
-                    const gasto = memoriaGastos[key];
+                llaves.forEach(function(key) {
+                    var gasto = memoriaGastos[key];
                     if (!gasto) return;
                     
-                    const isDewin = gasto.responsable === 'Dewin';
-                    const tagColor = isDewin ? 'bg-blue-50 text-blue-600 border-blue-100' : 'bg-pink-50 text-pink-600 border-pink-100';
-                    const textStyle = gasto.pagado ? 'line-through text-slate-300' : 'text-slate-800 font-semibold';
+                    var isDewin = gasto.responsable === 'Dewin';
+                    var tagColor = isDewin ? 'bg-blue-50 text-blue-600 border-blue-100' : 'bg-pink-50 text-pink-600 border-pink-100';
+                    var textStyle = gasto.pagado ? 'line-through text-slate-300' : 'text-slate-800 font-semibold';
                     
                     totalCostoMes += parseInt(gasto.monto || 0);
-                    if(isDewin) totalDewin += parseInt(gasto.monto || 0); else totalLili += parseInt(gasto.monto || 0);
-                    if(gasto.pagado) totalPagado += parseInt(gasto.monto || 0);
-
-                    html += `
-                        <div class="p-4 flex items-center justify-between hover:bg-slate-50 transition-colors">
-                            <div class="flex items-center gap-3 flex-1 min-w-0">
-                                <input type="checkbox" ${gasto.pagado ? 'checked' : ''} 
-                                       class="w-5 h-5 rounded text-slate-700" 
-                                       onchange="cambiarEstadoPago('${key}', this.checked)">
-                                <div class="min-w-0 flex-1">
-                                    <div class="flex items-center gap-1.5">
-                                        <p class="text-sm truncate ${textStyle}">${gasto.nombre}</p>
-                          
+                    if (isDewin) {
+                        totalDewin += parseInt(gasto.monto || 0);
+                    } else {
+                        totalLili += parseInt(gasto.monto || 0);
+              
