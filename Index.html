@@ -4,10 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Finanzas en Vivo - Lili & Dewin</title>
+    <!-- CDN Estable de Tailwind -->
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
 </head>
 <body class="bg-slate-50 text-slate-800 font-sans min-h-screen pb-12">
 
+    <!-- Encabezado -->
     <header class="bg-gradient-to-r from-blue-600 to-indigo-600 text-white py-5 px-4 shadow-md rounded-b-2xl">
         <div class="max-w-md mx-auto flex justify-between items-center">
             <div>
@@ -22,6 +24,7 @@
 
     <main class="max-w-md mx-auto px-4 mt-6 space-y-6">
 
+        <!-- DASHBOARD GENERAL -->
         <section class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100">
             <h2 class="text-sm font-semibold uppercase tracking-wider text-slate-400 mb-4">
                 📊 Balance del Mes
@@ -38,6 +41,7 @@
                 </div>
             </div>
 
+            <!-- Barras de Progreso -->
             <div class="space-y-4">
                 <div>
                     <div class="flex justify-between text-xs font-medium mb-1.5">
@@ -61,6 +65,7 @@
             </div>
         </section>
 
+        <!-- LISTA DE GASTOS -->
         <section class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
             <div class="p-5 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
                 <div>
@@ -70,19 +75,21 @@
                 </div>
                 <div class="flex gap-2">
                     <button onclick="abrirCreador()" class="text-xs bg-blue-600 hover:bg-blue-700 text-white px-2.5 py-1.5 rounded-lg font-bold shadow-sm transition-colors cursor-pointer">
-                        ➕ Añadir
+                        ➕ Añadir Gasto
                     </button>
-                    <button onclick="forzarReseteoBaseDatos()" class="text-[10px] bg-slate-200 hover:bg-slate-300 px-2 py-1.5 rounded-lg font-medium text-slate-600 transition-colors cursor-pointer" title="Restablecer los 11 gastos base">
-                        🔄 Base
+                    <button onclick="forzarReseteoBaseDatos()" class="text-[10px] bg-slate-200 hover:bg-slate-300 px-2 py-1.5 rounded-lg font-medium text-slate-600 transition-colors cursor-pointer">
+                        🔄 Cargar Base
                     </button>
                 </div>
             </div>
 
             <div class="divide-y divide-slate-100 min-h-[100px] bg-white" id="lista-gastos">
-                </div>
+                <!-- Se inyecta dinámicamente -->
+            </div>
         </section>
 
-        <div id="modal-editor" class="hidden fixed inset-0 bg-slate-900/40 flex items-center justify-center p-4 z-50 animate-fade-in">
+        <!-- MODAL ÚNICO PARA CREACIÓN / EDICIÓN -->
+        <div id="modal-editor" class="hidden fixed inset-0 bg-slate-900/40 flex items-center justify-center p-4 z-50">
             <div class="bg-white w-full max-w-sm rounded-2xl p-5 shadow-xl space-y-4">
                 <div class="flex justify-between items-center">
                     <h3 id="edit-titulo" class="text-sm font-bold text-slate-700 uppercase tracking-wide">Formulario de Gasto</h3>
@@ -93,17 +100,17 @@
                 
                 <div>
                     <label class="block text-xs font-semibold text-slate-500 mb-1">Nombre del Gasto</label>
-                    <input type="text" id="edit-nombre" class="w-full bg-slate-50 border border-slate-200 rounded-lg p-2 text-sm font-medium focus:outline-none focus:border-blue-500">
+                    <input type="text" id="edit-nombre" class="w-full bg-slate-50 border border-slate-200 rounded-lg p-2 text-sm font-medium focus:outline-none">
                 </div>
 
                 <div class="grid grid-cols-2 gap-3">
                     <div>
                         <label class="block text-xs font-semibold text-slate-500 mb-1">Monto ($)</label>
-                        <input type="number" id="edit-monto" class="w-full bg-slate-50 border border-slate-200 rounded-lg p-2 text-sm font-bold focus:outline-none focus:border-blue-500">
+                        <input type="number" id="edit-monto" class="w-full bg-slate-50 border border-slate-200 rounded-lg p-2 text-sm font-bold">
                     </div>
                     <div>
                         <label class="block text-xs font-semibold text-slate-500 mb-1">Responsable</label>
-                        <select id="edit-responsable" class="w-full bg-slate-50 border border-slate-200 rounded-lg p-2 text-sm focus:outline-none focus:border-blue-500 font-medium">
+                        <select id="edit-responsable" class="w-full bg-slate-50 border border-slate-200 rounded-lg p-2 text-sm font-medium">
                             <option value="Dewin">Dewin</option>
                             <option value="Lili">Lili</option>
                         </select>
@@ -113,20 +120,21 @@
                 <div class="grid grid-cols-2 gap-3">
                     <div>
                         <label class="block text-xs font-semibold text-slate-500 mb-1">Cuotas Restantes</label>
-                        <input type="text" id="edit-cuotas" class="w-full bg-slate-50 border border-slate-200 rounded-lg p-2 text-sm focus:outline-none focus:border-blue-500" placeholder="Ej: N/A o 3">
+                        <input type="text" id="edit-cuotas" class="w-full bg-slate-50 border border-slate-200 rounded-lg p-2 text-sm" placeholder="Ej: N/A">
                     </div>
                     <div>
                         <label class="block text-xs font-semibold text-slate-500 mb-1">Día / Frecuencia</label>
-                        <input type="text" id="edit-fecha" class="w-full bg-slate-50 border border-slate-200 rounded-lg p-2 text-sm focus:outline-none focus:border-blue-500" placeholder="Ej: 15 o Mes">
+                        <input type="text" id="edit-fecha" class="w-full bg-slate-50 border border-slate-200 rounded-lg p-2 text-sm" placeholder="Ej: Mes">
                     </div>
                 </div>
 
                 <button onclick="guardarGastoEstructura()" class="w-full bg-blue-600 hover:bg-blue-700 text-white p-2.5 text-sm font-bold rounded-xl shadow-md transition-colors cursor-pointer">
-                    🚀 Guardar Parámetros
+                    🚀 Guardar Gasto
                 </button>
             </div>
         </div>
 
+        <!-- SECCIÓN DE AHORROS -->
         <section class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100">
             <h2 class="text-sm font-semibold uppercase tracking-wider text-slate-400 mb-4">
                 🐷 Fondos de Ahorro Ajustados
@@ -199,7 +207,6 @@
 
         function inicializarApp() {
             descargarDatosNube();
-            // Escucha activa cada 4 segundos
             setInterval(descargarDatosNube, 4000);
         }
 
@@ -209,14 +216,15 @@
                 if (!res.ok) throw new Error();
                 const data = await res.json();
                 
-                // Si la nube tiene datos (aunque estén vacíos los gastos, garantizamos estructura)
-                if (data) {
-                    memoriaGastos = data.gastos || {};
+                // Si la nube tiene la propiedad gastos armada, la usamos
+                if (data && data.gastos && Object.keys(data.gastos).length > 0) {
+                    memoriaGastos = data.gastos;
                     renderizarInterfazLocal(data);
                     marcarIconoNube('sincronizado');
                 } else {
-                    // Si Firebase está virgen, inyectamos los por defecto automáticamente
+                    // CORRECCIÓN AUTOMÁTICA: Si está vacío, monta la base por defecto sin esperar el botón
                     memoriaGastos = Object.assign({}, gastosPorDefecto);
+                    renderizarInterfazLocal(null);
                     await subirDatosNube();
                 }
             } catch (error) {
@@ -237,11 +245,7 @@
             const llaves = Object.keys(memoriaGastos);
 
             if (llaves.length === 0) {
-                html = `
-                    <div class="p-8 text-center text-slate-400 text-sm">
-                        No hay gastos registrados. ¡Añade uno nuevo arriba! ➕
-                    </div>
-                `;
+                html = `<div class="p-8 text-center text-slate-400 text-sm">Cargando datos...</div>`;
             } else {
                 llaves.forEach(key => {
                     const gasto = memoriaGastos[key];
@@ -264,12 +268,8 @@
                                 <div class="min-w-0 flex-1">
                                     <div class="flex items-center gap-1.5">
                                         <p class="text-sm truncate ${textStyle}">${gasto.nombre}</p>
-                                        <button onclick="abrirEditor('${gasto.id}')" class="text-blue-500 text-[11px] font-medium px-1 hover:underline cursor-pointer">
-                                            ✏️
-                                        </button>
-                                        <button onclick="eliminarGasto('${gasto.id}')" class="text-red-400 hover:text-red-600 text-[11px] px-1 cursor-pointer">
-                                            🗑️
-                                        </button>
+                                        <button onclick="abrirEditor('${gasto.id}')" class="text-blue-500 text-[11px] font-medium px-1 hover:underline cursor-pointer">✏️</button>
+                                        <button onclick="eliminarGasto('${gasto.id}')" class="text-red-400 hover:text-red-600 text-[11px] px-1 cursor-pointer">🗑️</button>
                                     </div>
                                     <p class="text-[10px] text-slate-400 truncate mt-0.5">
                                         F. Pago: <span class="font-medium text-slate-600">${gasto.fecha || 'Mes'}</span> | Cuotas: <span class="font-medium text-slate-600">${gasto.cuotas || 'N/A'}</span>
@@ -326,4 +326,7 @@
             marcarIconoNube('cargando');
             const payload = {
                 gastos: memoriaGastos,
-                ahorroDewin: pars
+                ahorroDewin: parseInt(document.getElementById('range-dewin').value || 0),
+                ahorrosLili: {
+                    sem1: document.getElementById('sem1').checked,
+                    sem2: docum
