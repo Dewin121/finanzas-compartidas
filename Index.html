@@ -4,32 +4,30 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Finanzas en Vivo - Lili & Dewin</title>
+    <!-- CDN Estable de Tailwind v3 para evitar bloqueos de renderizado en móvil -->
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
-    <script src="https://unpkg.com/lucide@latest"></script>
-    <style>
-        /* Asegura visibilidad básica si el motor de Tailwind tarda en escanear */
-        #lista-gastos { display: block !important; min-height: 200px; }
-    </style>
 </head>
 <body class="bg-slate-50 text-slate-800 font-sans min-h-screen pb-12">
 
-    <header class="bg-gradient-to-r from-blue-600 to-indigo-600 text-white py-5 px-4 shadow-md sticky top-0 z-50 rounded-b-2xl">
+    <!-- Encabezado -->
+    <header class="bg-gradient-to-r from-blue-600 to-indigo-600 text-white py-5 px-4 shadow-md rounded-b-2xl">
         <div class="max-w-md mx-auto flex justify-between items-center">
             <div>
                 <h1 class="text-xl font-bold tracking-tight">Control Financiero ☁️</h1>
                 <p class="text-xs text-blue-100 mt-0.5">Sincronización en Vivo</p>
             </div>
-            <div id="indicador-nube" class="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center backdrop-blur-sm transition-all">
-                <i data-lucide="cloud" class="w-4 h-4 text-slate-200"></i>
+            <div id="indicador-nube" class="w-8 h-8 rounded-full bg-emerald-500 flex items-center justify-center text-white text-xs font-bold">
+                ✓
             </div>
         </div>
     </header>
 
     <main class="max-w-md mx-auto px-4 mt-6 space-y-6">
 
+        <!-- DASHBOARD GENERAL -->
         <section class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100">
             <h2 class="text-sm font-semibold uppercase tracking-wider text-slate-400 mb-4 flex items-center gap-2">
-                <i data-lucide="layout-dashboard" class="w-4 h-4 text-blue-500"></i> Balance del Mes
+                📊 Balance del Mes
             </h2>
             
             <div class="grid grid-cols-2 gap-4 mb-5">
@@ -43,6 +41,7 @@
                 </div>
             </div>
 
+            <!-- Barras de Progreso -->
             <div class="space-y-4">
                 <div>
                     <div class="flex justify-between text-xs font-medium mb-1.5">
@@ -50,7 +49,7 @@
                         <span id="pago-porcentaje" class="text-blue-600 font-bold">0%</span>
                     </div>
                     <div class="w-full bg-slate-100 rounded-full h-2.5 overflow-hidden">
-                        <div id="pago-barra" class="bg-gradient-to-r from-blue-500 to-indigo-500 h-2.5 rounded-full transition-all duration-500" style="width: 0%"></div>
+                        <div id="pago-barra" class="bg-blue-600 h-2.5 rounded-full transition-all duration-500" style="width: 0%"></div>
                     </div>
                 </div>
 
@@ -60,47 +59,50 @@
                         <span id="ahorro-porcentaje" class="text-emerald-600 font-bold">0%</span>
                     </div>
                     <div class="w-full bg-slate-100 rounded-full h-2.5 overflow-hidden">
-                        <div id="ahorro-barra" class="bg-gradient-to-r from-emerald-500 to-teal-500 h-2.5 rounded-full transition-all duration-500" style="width: 0%"></div>
+                        <div id="ahorro-barra" class="bg-emerald-500 h-2.5 rounded-full transition-all duration-500" style="width: 0%"></div>
                     </div>
                 </div>
             </div>
         </section>
 
+        <!-- LISTA DE GASTOS -->
         <section class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
             <div class="p-5 border-b border-slate-100 flex justify-between items-center">
                 <h2 class="text-sm font-semibold uppercase tracking-wider text-slate-400 flex items-center gap-2">
-                    <i data-lucide="receipt" class="w-4 h-4 text-blue-500"></i> Distribución Transparente
+                    📋 Distribución Transparente
                 </h2>
-                <button onclick="reiniciarEstadoMes()" class="text-[11px] bg-red-50 hover:bg-red-100 px-2 py-1 rounded-md font-medium text-red-600 transition-colors flex items-center gap-1">
-                    <i data-lucide="refresh-cw" class="w-3 h-3"></i> Reiniciar Pagos
+                <button onclick="reiniciarEstadoMes()" class="text-[11px] bg-red-50 hover:bg-red-100 px-2 py-1 rounded-md font-medium text-red-600 transition-colors">
+                    🔄 Reiniciar Pagos
                 </button>
             </div>
 
-            <div class="divide-y divide-slate-100" id="lista-gastos">
-                </div>
+            <div class="divide-y divide-slate-100min-h-[150px] bg-white" id="lista-gastos">
+                <!-- Inyección forzada por JS -->
+            </div>
         </section>
 
-        <div id="modal-editor" class="hidden fixed inset-0 bg-slate-900/40 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+        <!-- MODAL PARA EDICIÓN -->
+        <div id="modal-editor" class="hidden fixed inset-0 bg-slate-900/40 flex items-center justify-center p-4 z-50">
             <div class="bg-white w-full max-w-sm rounded-2xl p-5 shadow-xl space-y-4">
                 <div class="flex justify-between items-center">
                     <h3 id="edit-titulo" class="text-sm font-bold text-slate-700 uppercase">Editar Gasto</h3>
-                    <button onclick="cerrarEditor()" class="text-slate-400 hover:text-slate-600"><i data-lucide="x" class="w-5 h-5"></i></button>
+                    <button onclick="cerrarEditor()" class="text-slate-400 font-bold text-lg">&times;</button>
                 </div>
                 <input type="hidden" id="edit-id">
                 
                 <div>
                     <label class="block text-xs font-semibold text-slate-500 mb-1">Monto ($)</label>
-                    <input type="number" id="edit-monto" class="w-full bg-slate-50 border border-slate-200 rounded-lg p-2 text-sm font-bold focus:outline-blue-500">
+                    <input type="number" id="edit-monto" class="w-full bg-slate-50 border border-slate-200 rounded-lg p-2 text-sm font-bold">
                 </div>
 
                 <div class="grid grid-cols-2 gap-3">
                     <div>
                         <label class="block text-xs font-semibold text-slate-500 mb-1">Cuotas Restantes</label>
-                        <input type="text" id="edit-cuotas" class="w-full bg-slate-50 border border-slate-200 rounded-lg p-2 text-sm focus:outline-blue-500">
+                        <input type="text" id="edit-cuotas" class="w-full bg-slate-50 border border-slate-200 rounded-lg p-2 text-sm">
                     </div>
                     <div>
                         <label class="block text-xs font-semibold text-slate-500 mb-1">Día de Pago</label>
-                        <input type="text" id="edit-fecha" class="w-full bg-slate-50 border border-slate-200 rounded-lg p-2 text-sm focus:outline-blue-500">
+                        <input type="text" id="edit-fecha" class="w-full bg-slate-50 border border-slate-200 rounded-lg p-2 text-sm">
                     </div>
                 </div>
 
@@ -110,9 +112,10 @@
             </div>
         </div>
 
+        <!-- SECCIÓN DE AHORROS -->
         <section class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100">
             <h2 class="text-sm font-semibold uppercase tracking-wider text-slate-400 mb-4 flex items-center gap-2">
-                <i data-lucide="piggy-bank" class="w-4 h-4 text-emerald-500"></i> Fondos de Ahorro Ajustados
+                🐷 Fondos de Ahorro Ajustados
             </h2>
 
             <div class="space-y-4">
@@ -161,6 +164,7 @@
     </main>
 
     <script>
+        // URL Limpia de tu Realtime Database
         const FIREBASE_URL = "https://finanza-88b8e-default-rtdb.firebaseio.com/finanzas.json";
 
         const gastosPorDefecto = {
@@ -181,18 +185,18 @@
         const metaAhorroTotal = 760000;
 
         function inicializarApp() {
-            // Render inmediato local asegurado
+            // Render de contingencia inmediato con los datos locales definidos arriba
             renderizarInterfazLocal();
             
-            // Sincronización en segundo plano limpia
+            // Descarga inicial y ciclo de sincronización continua
             descargarDatosNube();
-            setInterval(descargarDatosNube, 7000);
+            setInterval(descargarDatosNube, 5000);
         }
 
         async function descargarDatosNube() {
             try {
                 const res = await fetch(FIREBASE_URL);
-                if (!res.ok) throw new Error();
+                if (!res.ok) throw new Error("Error HTTP");
                 const data = await res.json();
                 
                 if (data && data.gastos) {
@@ -200,10 +204,11 @@
                     renderizarInterfazLocal(data);
                     marcarIconoNube('sincronizado');
                 } else {
+                    // Si la respuesta es nula o vacía, poblar la nube automáticamente
                     await subirDatosNube();
                 }
             } catch (error) {
-                console.log("Trabajando en modo local seguro.");
+                console.log("Modo local activo:", error);
                 marcarIconoNube('error');
             }
         }
@@ -233,17 +238,14 @@
                 html += `
                     <div class="p-4 flex items-center justify-between hover:bg-slate-50 transition-colors">
                         <div class="flex items-center gap-3 flex-1 min-w-0">
-                            <label class="relative flex items-center justify-center p-1 cursor-pointer">
-                                <input type="checkbox" ${gasto.pagado ? 'checked' : ''} 
-                                       class="peer appearance-none w-5 h-5 border-2 border-slate-300 rounded-md checked:bg-slate-700 checked:border-slate-700 transition-all cursor-pointer"
-                                        onchange="cambiarEstadoPago('${gasto.id}', this.checked)">
-                                <i data-lucide="check" class="absolute w-3.5 h-3.5 text-white opacity-0 peer-checked:opacity-100 transition-opacity pointer-events-none" style="top:5px; left:5px;"></i>
-                            </label>
+                            <input type="checkbox" ${gasto.pagado ? 'checked' : ''} 
+                                   class="w-5 h-5 accent-slate-700 cursor-pointer rounded"
+                                   onchange="cambiarEstadoPago('${gasto.id}', this.checked)">
                             <div class="min-w-0 flex-1">
                                 <div class="flex items-center gap-2">
                                     <p class="text-sm font-semibold truncate ${textStyle}">${gasto.nombre}</p>
-                                    <button onclick="abrirEditor('${gasto.id}')" class="text-slate-300 hover:text-blue-500 p-0.5 rounded transition-colors cursor-pointer">
-                                        <i data-lucide="edit-2" class="w-3 h-3"></i>
+                                    <button onclick="abrirEditor('${gasto.id}')" class="text-blue-500 font-bold text-xs px-1 hover:underline cursor-pointer">
+                                        [Editar]
                                     </button>
                                 </div>
                                 <p class="text-[10px] text-slate-400 truncate mt-0.5">
@@ -253,7 +255,7 @@
                         </div>
                         <div class="text-right ml-2">
                             <p class="text-sm font-bold text-slate-900">$${parseInt(gasto.monto || 0).toLocaleString('es-CO')}</p>
-                            <span class="inline-block text-[9px] uppercase font-bold px-1.5 py-0.5 rounded-md border mt-1 ${tagColor}">
+                            <span class="inline-block text-[9px] uppercase font-bold px-1.5 py-0.5 rounded border ${tagColor}">
                                 ${gasto.responsable}
                             </span>
                         </div>
@@ -278,9 +280,9 @@
                 const lbl = document.getElementById(`lbl-${semId}`);
                 if(chk.checked) {
                     ahorroLili += 90000;
-                    if(lbl) lbl.className = "flex flex-col items-center p-2 rounded-lg border border-pink-300 bg-pink-50/50 cursor-pointer select-none transition-all";
+                    if(lbl) lbl.className = "flex flex-col items-center p-2 rounded-lg border border-pink-300 bg-pink-50 cursor-pointer text-pink-600 transition-all";
                 } else {
-                    if(lbl) lbl.className = "flex flex-col items-center p-2 bg-white rounded-lg border border-slate-200 cursor-pointer select-none transition-all";
+                    if(lbl) lbl.className = "flex flex-col items-center p-2 bg-white rounded-lg border border-slate-200 cursor-pointer text-slate-700 transition-all";
                 }
             });
             document.getElementById('txt-ahorro-lili').innerText = `$${ahorroLili.toLocaleString('es-CO')} / $360.000`;
@@ -292,8 +294,6 @@
             const porcAhorro = Math.round(((dewinAhorroVal + ahorroLili) / metaAhorroTotal) * 100) || 0;
             document.getElementById('ahorro-porcentaje').innerText = `${porcAhorro}%`;
             document.getElementById('ahorro-barra').style.width = `${porcAhorro}%`;
-
-            if (typeof lucide !== 'undefined') lucide.createIcons();
         }
 
         async function subirDatosNube() {
@@ -332,4 +332,17 @@
             const gasto = memoriaGastos[id];
             if(!gasto) return;
             document.getElementById('edit-id').value = id;
-            document
+            document.getElementById('edit-titulo').innerText = `Editar: ${gasto.nombre}`;
+            document.getElementById('edit-monto').value = gasto.monto;
+            document.getElementById('edit-cuotas').value = gasto.cuotas;
+            document.getElementById('edit-fecha').value = gasto.fecha;
+            document.getElementById('modal-editor').classList.remove('hidden');
+        }
+
+        function cerrarEditor() { document.getElementById('modal-editor').classList.add('hidden'); }
+
+        function guardarCambiosGasto() {
+            const id = document.getElementById('edit-id').value;
+            if(memoriaGastos[id]) {
+                memoriaGastos[id].monto = parseInt(document.getElementById('edit-monto').value) || 0;
+                memoriaGastos[id].cuotas = document.getElementB
