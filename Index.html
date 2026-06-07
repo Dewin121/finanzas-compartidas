@@ -4,10 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Finanzas en Vivo - Lili & Dewin</title>
+    <!-- CDN Estable de Tailwind -->
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
 </head>
 <body class="bg-slate-50 text-slate-800 font-sans min-h-screen pb-12">
 
+    <!-- Encabezado -->
     <header class="bg-gradient-to-r from-blue-600 to-indigo-600 text-white py-5 px-4 shadow-md rounded-b-2xl">
         <div class="max-w-md mx-auto flex justify-between items-center">
             <div>
@@ -22,6 +24,7 @@
 
     <main class="max-w-md mx-auto px-4 mt-6 space-y-6">
 
+        <!-- DASHBOARD GENERAL -->
         <section class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100">
             <h2 class="text-sm font-semibold uppercase tracking-wider text-slate-400 mb-4">
                 📊 Balance del Mes
@@ -38,6 +41,7 @@
                 </div>
             </div>
 
+            <!-- Barras de Progreso -->
             <div class="space-y-4">
                 <div>
                     <div class="flex justify-between text-xs font-medium mb-1.5">
@@ -61,6 +65,7 @@
             </div>
         </section>
 
+        <!-- LISTA DE GASTOS -->
         <section class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
             <div class="p-5 border-b border-slate-100 flex justify-between items-center">
                 <h2 class="text-sm font-semibold uppercase tracking-wider text-slate-400">
@@ -72,9 +77,11 @@
             </div>
 
             <div class="divide-y divide-slate-100 min-h-[150px] bg-white" id="lista-gastos">
-                </div>
+                <!-- Se inyecta dinámicamente -->
+            </div>
         </section>
 
+        <!-- MODAL PARA EDICIÓN -->
         <div id="modal-editor" class="hidden fixed inset-0 bg-slate-900/40 flex items-center justify-center p-4 z-50">
             <div class="bg-white w-full max-w-sm rounded-2xl p-5 shadow-xl space-y-4">
                 <div class="flex justify-between items-center">
@@ -105,6 +112,7 @@
             </div>
         </div>
 
+        <!-- SECCIÓN DE AHORROS -->
         <section class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100">
             <h2 class="text-sm font-semibold uppercase tracking-wider text-slate-400 mb-4">
                 🐷 Fondos de Ahorro Ajustados
@@ -176,9 +184,7 @@
         const metaAhorroTotal = 760000;
 
         function inicializarApp() {
-            // RENDER INMEDIATO: Pintamos la lista local antes de ir a internet para evitar pantallas blancas
             renderizarInterfazLocal();
-            
             descargarDatosNube();
             setInterval(descargarDatosNube, 5000);
         }
@@ -194,11 +200,10 @@
                     renderizarInterfazLocal(data);
                     marcarIconoNube('sincronizado');
                 } else {
-                    // Si responde nulo o vacío por culpa de reglas, intentamos poblarla
                     await subirDatosNube();
                 }
             } catch (error) {
-                console.log("Error de conexión. Manteniendo vista local.");
+                console.log("Error de sincronización. Modo Local activo.");
                 marcarIconoNube('error');
             }
         }
@@ -262,18 +267,23 @@
             document.getElementById('txt-ahorro-dewin').innerText = `$${dewinAhorroVal.toLocaleString('es-CO')} / $400.000`;
 
             let ahorroLili = 0;
-            ['sum1', 'sum2', 'sum3', 'sum4'].forEach(semId => {
-                const chk = document.getElementById(semId);
-                if (!chk) return;
-                if (dataNube) chk.checked = dataNube.ahorrosLili?.[semId] || false;
-                
-                const lbl = document.getElementById(`lbl-${semId}`);
-                if(chk.checked) {
-                    ahorroLili += 90000;
-                    if(lbl) lbl.className = "flex flex-col items-center p-2 rounded-lg border border-pink-300 bg-pink-50 text-pink-600 transition-all";
-                } else {
-                    if(lbl) lbl.className = "flex flex-col items-center p-2 bg-white rounded-lg border border-slate-200 text-slate-700 transition-all";
-                }
+            // CORREGIDO: Arreglado el typo de 'sum' a 'sem' para hacer Match con el HTML real
+            ['sem1', 'sem2', 'sem3', 'sem4'].forEach(semId => {
+                try {
+                    const chk = document.getElementById(semId);
+                    if (!chk) return;
+                    if (dataNube && dataNube.ahorrosLili) {
+                        chk.checked = dataNube.ahorrosLili[semId] || false;
+                    }
+                    
+                    const lbl = document.getElementById(`lbl-${semId}`);
+                    if(chk.checked) {
+                        ahorroLili += 90000;
+                        if(lbl) lbl.className = "flex flex-col items-center p-2 rounded-lg border border-pink-300 bg-pink-50 text-pink-600 transition-all cursor-pointer select-none";
+                    } else {
+                        if(lbl) lbl.className = "flex flex-col items-center p-2 bg-white rounded-lg border border-slate-200 text-slate-700 transition-all cursor-pointer select-none";
+                    }
+                } catch(e) { console.error("Error procesando semana: ", semId); }
             });
             document.getElementById('txt-ahorro-lili').innerText = `$${ahorroLili.toLocaleString('es-CO')} / $360.000`;
 
@@ -341,14 +351,4 @@
 
         function guardarCambiosGasto() {
             const id = document.getElementById('edit-id').value;
-            if(memoriaGastos[id]) {
-                memoriaGastos[id].monto = parseInt(document.getElementById('edit-monto').value) || 0;
-                memoriaGastos[id].cuotas = document.getElementById('edit-cuotas').value || 'N/A';
-                memoriaGastos[id].fecha = document.getElementById('edit-fecha').value || 'Mes';
-            }
-            cerrarEditor();
-            renderInitializeForced();
-        }
-
-        function renderInitializeForced() {
-  
+            if(memoriaGasto
