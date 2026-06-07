@@ -3,26 +3,28 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Control de Finanzas Directas</title>
+    <title>Control de Finanzas Ajustado</title>
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
 </head>
 <body class="bg-slate-50 text-slate-800 font-sans min-h-screen pb-12">
 
+    <!-- Encabezado -->
     <header class="bg-gradient-to-r from-blue-600 to-indigo-600 text-white py-6 px-4 shadow-md sticky top-0 z-50 rounded-b-2xl">
         <div class="max-w-md mx-auto flex justify-between items-center">
             <div>
                 <h1 class="text-xl font-bold tracking-tight">Finanzas Sin Transferencias</h1>
-                <p class="text-xs text-blue-100 mt-0.5">Asignación por Responsabilidad Equitativa</p>
+                <p class="text-xs text-blue-100 mt-0.5">Gastos Cruzados e Intercambiados</p>
             </div>
             <div class="bg-white/20 p-2 rounded-xl backdrop-blur-xs">
-                <i data-lucide="shuffle" class="w-6 h-6 text-blue-200"></i>
+                <i data-lucide="arrow-left-right" class="w-6 h-6 text-blue-200"></i>
             </div>
         </div>
     </header>
 
     <main class="max-w-md mx-auto px-4 mt-6 space-y-6">
 
+        <!-- DASHBOARD -->
         <section class="bg-white p-5 rounded-2xl shadow-xs border border-slate-100">
             <h2 class="text-sm font-semibold uppercase tracking-wider text-slate-400 mb-4 flex items-center gap-2">
                 <i data-lucide="layout-dashboard" class="w-4 h-4 text-blue-500"></i> Balance del Mes
@@ -31,14 +33,15 @@
             <div class="grid grid-cols-2 gap-4 mb-5">
                 <div class="bg-blue-50 p-3.5 rounded-xl border border-blue-100/50">
                     <span class="text-xs text-blue-600 font-medium block mb-1">Obligación Dewin</span>
-                    <span class="text-xl font-bold text-blue-950">$1.763.000</span>
+                    <span class="text-xl font-bold text-blue-950">$1.753.000</span>
                 </div>
                 <div class="bg-pink-50 p-3.5 rounded-xl border border-pink-100/50">
                     <span class="text-xs text-pink-600 font-medium block mb-1">Obligación Ella</span>
-                    <span class="text-xl font-bold text-pink-950">$790.000</span>
+                    <span class="text-xl font-bold text-pink-950">$800.000</span>
                 </div>
             </div>
 
+            <!-- Barras de Progreso -->
             <div class="space-y-4">
                 <div>
                     <div class="flex justify-between text-xs font-medium mb-1.5">
@@ -62,10 +65,11 @@
             </div>
         </section>
 
+        <!-- LISTA DE GASTOS ASIGNADOS -->
         <section class="bg-white rounded-2xl shadow-xs border border-slate-100 overflow-hidden">
             <div class="p-5 border-b border-slate-100 flex justify-between items-center">
                 <h2 class="text-sm font-semibold uppercase tracking-wider text-slate-400 flex items-center gap-2">
-                    <i data-lucide="receipt" class="w-4 h-4 text-blue-500"></i> Quién paga qué
+                    <i data-lucide="receipt" class="w-4 h-4 text-blue-500"></i> Distribución de Cuentas
                 </h2>
                 <button onclick="reiniciarMes()" class="text-[11px] bg-red-50 hover:bg-red-100 px-2 py-1 rounded-md font-medium text-red-600 transition-colors flex items-center gap-1">
                     <i data-lucide="refresh-cw" class="w-3 h-3"></i> Reiniciar
@@ -73,55 +77,59 @@
             </div>
 
             <div class="divide-y divide-slate-100" id="lista-gastos">
-                </div>
+                <!-- Inyección JS -->
+            </div>
         </section>
 
+        <!-- SECCIÓN DE AHORROS RECALCULADOS -->
         <section class="bg-white p-5 rounded-2xl shadow-xs border border-slate-100">
             <h2 class="text-sm font-semibold uppercase tracking-wider text-slate-400 mb-4 flex items-center gap-2">
-                <i data-lucide="piggy-bank" class="w-4 h-4 text-emerald-500"></i> Fondo de Ahorro
+                <i data-lucide="piggy-bank" class="w-4 h-4 text-emerald-500"></i> Fondo de Ahorro Reajustado
             </h2>
 
             <div class="space-y-4">
+                <!-- Ahorro Dewin -->
                 <div class="p-3 bg-slate-50 rounded-xl border border-slate-200/60">
                     <div class="flex justify-between items-center mb-2">
                         <span class="text-xs font-bold text-slate-700 flex items-center gap-1.5">
                             <span class="w-1.5 h-1.5 rounded-full bg-blue-500"></span> Dewin (Mensual)
                         </span>
-                        <span class="text-xs text-slate-500 font-medium" id="txt-ahorro-dewin">$0 / $500.000</span>
+                        <span class="text-xs text-slate-500 font-medium" id="txt-ahorro-dewin">$0 / $200.000</span>
                     </div>
                     <div class="flex items-center gap-3">
-                        <input type="range" id="range-dewin" min="0" max="500000" step="50000" value="0" class="w-full accent-blue-600 h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer" oninput="guardarYCalcular()">
+                        <input type="range" id="range-dewin" min="0" max="200000" step="20000" value="0" class="w-full accent-blue-600 h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer" oninput="guardarYCalcular()">
                     </div>
                 </div>
 
+                <!-- Ahorro Ella -->
                 <div class="p-3 bg-slate-50 rounded-xl border border-slate-200/60">
                     <div class="flex justify-between items-center mb-2">
                         <span class="text-xs font-bold text-slate-700 flex items-center gap-1.5">
                             <span class="w-1.5 h-1.5 rounded-full bg-pink-500"></span> Ella (Semanal)
                         </span>
-                        <span class="text-xs text-slate-500 font-medium" id="txt-ahorro-ella">$0 / $600.000</span>
+                        <span class="text-xs text-slate-500 font-medium" id="txt-ahorro-ella">$0 / $480.000</span>
                     </div>
                     
                     <div class="grid grid-cols-4 gap-2 mt-2">
                         <label id="lbl-sem1" class="flex flex-col items-center p-2 bg-white rounded-lg border border-slate-200 cursor-pointer select-none transition-all">
                             <span class="text-[10px] text-slate-400 font-medium">Sem 1</span>
-                            <span class="text-[11px] font-bold text-slate-700 mt-0.5">$150k</span>
-                            <input type="checkbox" id="sem1" class="hidden class-ahorro-ella" value="150000" onchange="guardarYCalcular()">
+                            <span class="text-[11px] font-bold text-slate-700 mt-0.5">$120k</span>
+                            <input type="checkbox" id="sem1" class="hidden class-ahorro-ella" value="120000" onchange="guardarYCalcular()">
                         </label>
                         <label id="lbl-sem2" class="flex flex-col items-center p-2 bg-white rounded-lg border border-slate-200 cursor-pointer select-none transition-all">
                             <span class="text-[10px] text-slate-400 font-medium">Sem 2</span>
-                            <span class="text-[11px] font-bold text-slate-700 mt-0.5">$150k</span>
-                            <input type="checkbox" id="sem2" class="hidden class-ahorro-ella" value="150000" onchange="guardarYCalcular()">
+                            <span class="text-[11px] font-bold text-slate-700 mt-0.5">$120k</span>
+                            <input type="checkbox" id="sem2" class="hidden class-ahorro-ella" value="120000" onchange="guardarYCalcular()">
                         </label>
                         <label id="lbl-sem3" class="flex flex-col items-center p-2 bg-white rounded-lg border border-slate-200 cursor-pointer select-none transition-all">
                             <span class="text-[10px] text-slate-400 font-medium">Sem 3</span>
-                            <span class="text-[11px] font-bold text-slate-700 mt-0.5">$150k</span>
-                            <input type="checkbox" id="sem3" class="hidden class-ahorro-ella" value="150000" onchange="guardarYCalcular()">
+                            <span class="text-[11px] font-bold text-slate-700 mt-0.5">$120k</span>
+                            <input type="checkbox" id="sem3" class="hidden class-ahorro-ella" value="120000" onchange="guardarYCalcular()">
                         </label>
                         <label id="lbl-sem4" class="flex flex-col items-center p-2 bg-white rounded-lg border border-slate-200 cursor-pointer select-none transition-all">
                             <span class="text-[10px] text-slate-400 font-medium">Sem 4</span>
-                            <span class="text-[11px] font-bold text-slate-700 mt-0.5">$150k</span>
-                            <input type="checkbox" id="sem4" class="hidden class-ahorro-ella" value="150000" onchange="guardarYCalcular()">
+                            <span class="text-[11px] font-bold text-slate-700 mt-0.5">$120k</span>
+                            <input type="checkbox" id="sem4" class="hidden class-ahorro-ella" value="120000" onchange="guardarYCalcular()">
                         </label>
                     </div>
                 </div>
@@ -131,28 +139,138 @@
     </main>
 
     <script>
-        // Nueva matriz mapeada con los responsables reales directos
+        // Matriz reorganizada con el enroque solicitado
         const datosGastos = [
-            { id: 1, nombre: 'Arriendo', monto: 370000, responsable: 'Ella', subtext: 'Gasto Compartido' },
+            { id: 1, nombre: 'Mercado', monto: 500000, responsable: 'Ella', subtext: 'Gasto Compartido Asumido' },
             { id: 2, nombre: 'Internet', monto: 60000, responsable: 'Ella', subtext: 'Gasto Compartido' },
             { id: 3, nombre: 'Transporte Ella', monto: 240000, responsable: 'Ella', subtext: 'Gasto Propio' },
-            { id: 4, nombre: 'Apoyo Madre', monto: 100000, responsable: 'Ella', subtext: 'Compromiso Familiar' },
-            { id: 5, nombre: 'Hija', monto: 20000, responsable: 'Ella', subtext: 'Compromiso Familiar' },
-            { id: 6, nombre: 'Luz', monto: 250000, responsable: 'Dewin', subtext: 'Gasto Compartido' },
-            { id: 7, nombre: 'Mercado', monto: 500000, responsable: 'Dewin', subtext: 'Gasto Compartido' },
-            { id: 8, nombre: 'Addi', monto: 216000, responsable: 'Dewin', subtext: 'Gasto Compartido' },
-            { id: 9, nombre: 'Tarjeta', monto: 256000, responsable: 'Dewin', subtext: 'Gasto Compartido' },
+            { id: 4, nombre: 'Arriendo', monto: 370000, responsable: 'Dewin', subtext: 'Gasto Compartido Asumido' },
+            { id: 5, nombre: 'Luz', monto: 250000, responsable: 'Dewin', subtext: 'Gasto Compartido' },
+            { id: 6, nombre: 'Addi', monto: 216000, responsable: 'Dewin', subtext: 'Gasto Compartido' },
+            { id: 7, nombre: 'Tarjeta', monto: 256000, responsable: 'Dewin', subtext: 'Gasto Compartido' },
+            { id: 8, nombre: 'Apoyo Madre Ella', monto: 100000, responsable: 'Dewin', subtext: 'Cubierto por Dewin para balancear' },
+            { id: 9, nombre: 'Hija Ella', monto: 20000, responsable: 'Dewin', subtext: 'Cubierto por Dewin para balancear' },
             { id: 10, nombre: 'Transporte Dewin', monto: 288000, responsable: 'Dewin', subtext: 'Gasto Propio' },
             { id: 11, nombre: 'Bancolombia', monto: 253000, responsable: 'Dewin', subtext: 'Gasto Propio' }
         ];
 
-        const totalPresupuestoGastos = 2553000; // Suma total con los nuevos gastos agregados
-        const metaAhorroTotal = 1100000;
+        const totalPresupuestoGastos = 2553000; 
+        const metaAhorroTotal = 680000; // 200k Dewin + 480k Ella
 
         function inicializarApp() {
             const contenedor = document.getElementById('lista-gastos');
             let html = '';
-            const estadosGastosSaves = JSON.parse(localStorage.getItem('finanzas_gastos_v2')) || {};
+            const estadosGastosSaves = JSON.parse(localStorage.getItem('finanzas_gastos_v3')) || {};
+
+            datosGastos.forEach(gasto => {
+                const isDewin = gasto.responsable === 'Dewin';
+                const tagColor = isDewin ? 'bg-blue-50 text-blue-600 border-blue-100' : 'bg-pink-50 text-pink-600 border-pink-100';
+                
+                const isChecked = estadosGastosSaves[gasto.id] ? 'checked' : '';
+                const textStyle = estadosGastosSaves[gasto.id] ? 'line-through text-slate-300' : 'text-slate-800';
+
+                html += `
+                    <div class="p-4 flex items-center justify-between hover:bg-slate-50 transition-colors" id="item-${gasto.id}">
+                        <div class="flex items-center gap-3.5 flex-1 min-w-0">
+                            <label class="relative flex items-center justify-center p-1 cursor-pointer">
+                                <input type="checkbox" 
+                                       id="chk-gasto-${gasto.id}"
+                                       value="${gasto.monto}" 
+                                       data-id="${gasto.id}"
+                                       ${isChecked}
+                                       class="class-gasto-check peer appearance-none w-5 h-5 border-2 border-slate-300 rounded-md checked:bg-slate-700 checked:border-slate-700 transition-all cursor-pointer"
+                                       onchange="toggleGastoVisual(${gasto.id})">
+                                <i data-lucide="check" class="absolute w-3.5 h-3.5 text-white opacity-0 peer-checked:opacity-100 transition-opacity pointer-events-none"></i>
+                            </label>
+                            <div class="min-w-0">
+                                <p class="text-sm font-semibold transition-all label-nombre ${textStyle}">${gasto.nombre}</p>
+                                <p class="text-[11px] text-slate-400 truncate mt-0.5">${gasto.subtext}</p>
+                            </div>
+                        </div>
+                        <div class="text-right ml-2">
+                            <p class="text-sm font-bold text-slate-900">$${gasto.monto.toLocaleString('es-CO')}</p>
+                            <span class="inline-block text-[9px] uppercase font-bold px-1.5 py-0.5 rounded-md border mt-1 ${tagColor}">
+                                ${gasto.responsable}
+                            </span>
+                        </div>
+                    </div>
+                `;
+            });
+
+            contenedor.innerHTML = html;
+            document.getElementById('range-dewin').value = localStorage.getItem('finanzas_ahorro_dewin_v3') || 0;
+            
+            ['sem1', 'sem2', 'sem3', 'sem4'].forEach(semId => {
+                const checkedStatus = localStorage.getItem(`finanzas_ahorro_${semId}_v3`) === 'true';
+                document.getElementById(semId).checked = checkedStatus;
+            });
+
+            lucide.createIcons();
+            guardarYCalcular();
+        }
+
+        function toggleGastoVisual(id) {
+            const item = document.getElementById(`item-${id}`);
+            const nombre = item.querySelector('.label-nombre');
+            const checkbox = document.getElementById(`chk-gasto-${id}`);
+            nombre.className = checkbox.checked ? 'text-sm font-semibold transition-all label-nombre line-through text-slate-300' : 'text-sm font-semibold transition-all label-nombre text-slate-800';
+            guardarYCalcular();
+        }
+
+        function guardarYCalcular() {
+            const estadosGastos = {};
+            const checkboxes = document.querySelectorAll('.class-gasto-check');
+            let sumatoriaPagado = 0;
+
+            checkboxes.forEach(cb => {
+                const idGasto = cb.getAttribute('data-id');
+                estadosGastos[idGasto] = cb.checked;
+                if(cb.checked) sumatoriaPagado += parseInt(cb.value);
+            });
+            localStorage.setItem('finanzas_gastos_v3', JSON.stringify(estadosGastos));
+
+            const ahorroDewin = parseInt(document.getElementById('range-dewin').value);
+            localStorage.setItem('finanzas_ahorro_dewin_v3', ahorroDewin);
+            document.getElementById('txt-ahorro-dewin').innerText = `$${ahorroDewin.toLocaleString('es-CO')} / $200.000`;
+
+            let ahorroElla = 0;
+            ['sem1', 'sem2', 'sem3', 'sem4'].forEach(semId => {
+                const ch = document.getElementById(semId);
+                const lbl = document.getElementById(`lbl-${semId}`);
+                localStorage.setItem(`finanzas_ahorro_${semId}_v3`, ch.checked);
+                if(ch.checked) {
+                    ahorroElla += parseInt(ch.value);
+                    lbl.className = "flex flex-col items-center p-2 rounded-lg border border-pink-300 bg-pink-50/50 cursor-pointer select-none transition-all";
+                } else {
+                    lbl.className = "flex flex-col items-center p-2 bg-white rounded-lg border border-slate-200 cursor-pointer select-none transition-all";
+                }
+            });
+            document.getElementById('txt-ahorro-ella').innerText = `$${ahorroElla.toLocaleString('es-CO')} / $480.000`;
+
+            const porcPagos = Math.round((sumatoriaPagado / totalPresupuestoGastos) * 100) || 0;
+            document.getElementById('pago-porcentaje').innerText = `${porcPagos}%`;
+            document.getElementById('pago-barra').style.width = `${porcPagos}%`;
+
+            const ahorroTotalActual = ahorroDewin + ahorroElla;
+            const porcAhorro = Math.round((ahorroTotalActual / metaAhorroTotal) * 100) || 0;
+            document.getElementById('ahorro-porcentaje').innerText = `${porcAhorro}%`;
+            document.getElementById('ahorro-barra').style.width = `${porcAhorro}%`;
+        }
+
+        function reiniciarMes() {
+            if(confirm('¿Reiniciar todos los pagos y ahorros de este periodo?')) {
+                localStorage.removeItem('finanzas_gastos_v3');
+                localStorage.removeItem('finanzas_ahorro_dewin_v3');
+                ['sem1', 'sem2', 'sem3', 'sem4'].forEach(id => localStorage.removeItem(`finanzas_ahorro_${id}_v3`));
+                inicializarApp();
+            }
+        }
+
+        window.onload = inicializarApp;
+    </script>
+</body>
+</html>
+s_gastos_v2')) || {};
 
             datosGastos.forEach(gasto => {
                 const isDewin = gasto.responsable === 'Dewin';
