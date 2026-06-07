@@ -17,7 +17,7 @@
                 <p class="text-xs text-blue-100 mt-0.5">Sincronización en la Nube en Vivo</p>
             </div>
             <div id="indicador-nube" class="bg-white/20 p-2 rounded-xl backdrop-blur-xs transition-colors">
-                <i data-lucide="cloud-check" class="w-5 h-5 text-emerald-200"></i>
+                <i data-lucide="cloud" class="w-5 h-5 text-amber-200"></i>
             </div>
         </div>
     </header>
@@ -77,11 +77,11 @@
             </div>
 
             <div class="divide-y divide-slate-100" id="lista-gastos">
-                <!-- Los elementos editables se inyectan dinámicamente por JavaScript -->
+                <!-- Los elementos editables se inyectan dinámicamente -->
             </div>
         </section>
 
-        <!-- FORMULARIO DE EDICIÓN FLOTANTE / INLINE -->
+        <!-- FORMULARIO DE EDICIÓN FLOTANTE -->
         <div id="modal-editor" class="hidden fixed inset-0 bg-slate-900/40 backdrop-blur-xs flex items-center justify-center p-4 z-50">
             <div class="bg-white w-full max-w-sm rounded-2xl p-5 shadow-xl space-y-4">
                 <div class="flex justify-between items-center">
@@ -112,7 +112,7 @@
             </div>
         </div>
 
-        <!-- SECCIÓN DE AHORROS RECALCULADOS -->
+        <!-- SECCIÓN DE AHORROS -->
         <section class="bg-white p-5 rounded-2xl shadow-xs border border-slate-100">
             <h2 class="text-sm font-semibold uppercase tracking-wider text-slate-400 mb-4 flex items-center gap-2">
                 <i data-lucide="piggy-bank" class="w-4 h-4 text-emerald-500"></i> Fondos de Ahorro Ajustados
@@ -155,7 +155,7 @@
                         <label id="lbl-sem3" class="flex flex-col items-center p-2 bg-white rounded-lg border border-slate-200 cursor-pointer select-none transition-all">
                             <span class="text-[10px] text-slate-400 font-medium">Sem 3</span>
                             <span class="text-[11px] font-bold text-slate-700 mt-0.5">$90k</span>
-                            <input type="checkbox" id="sem3" class="hidden" value="90000" onchange="subirDatosNube()">
+                            <input type="checkbox" id="sem3" class="hidden" value="90000" onchange="sub先行onchange="subirDatosNube()">
                         </label>
                         <label id="lbl-sem4" class="flex flex-col items-center p-2 bg-white rounded-lg border border-slate-200 cursor-pointer select-none transition-all">
                             <span class="text-[10px] text-slate-400 font-medium">Sem 4</span>
@@ -170,10 +170,8 @@
     </main>
 
     <script>
-        // URL Real de Firebase vinculada a tu base de datos central
         const FIREBASE_URL = "https://finanza-88b8e-default-rtdb.firebaseio.com/finanzas.json";
 
-        // Estructura de datos inicial base (Se usará solo si Firebase está vacío)
         const gastosPorDefecto = {
             1: { id: 1, nombre: 'Mercado Semanal', monto: 125000, responsable: 'Lili', cuotas: 'N/A', fecha: 'Semanal', pagado: false },
             2: { id: 2, nombre: 'Apoyo Madre', monto: 25000, responsable: 'Lili', cuotas: 'N/A', fecha: 'Semanal', pagado: false },
@@ -188,123 +186,124 @@
             11: { id: 11, nombre: 'Transporte Dewin', monto: 288000, responsable: 'Dewin', cuotas: 'N/A', fecha: 'Mes', pagado: false }
         };
 
-        let memoriaGastos = {};
-        const metaAhorroTotal = 760000; // 400k + 360k
+        let memoriaGastos = gastosPorDefecto;
+        const metaAhorroTotal = 760000;
 
         function inicializarEstructura() {
+            renderizarInterfazLocal();
             descargarDatosNube();
-            // Polling en tiempo real cada 3.5 segundos para reflejar cruces instantáneos entre teléfonos
-            setInterval(descargarDatosNube, 3500);
+            setInterval(descargarDatosNube, 4000);
         }
 
         async function descargarDatosNube() {
             try {
                 const res = await fetch(FIREBASE_URL);
+                if (!res.ok) throw new Error("Bloqueo de reglas");
                 const data = await res.json();
                 
-                // Si la nube está vacía, le inyectamos la matriz por defecto de inmediato
                 if (!data || !data.gastos) {
-                    memoriaGastos = gastosPorDefecto;
                     await subirDatosNube();
                     return;
                 }
 
                 memoriaGastos = data.gastos;
-                
-                // Renderizar lista de gastos dinámicos
-                const contenedor = document.getElementById('lista-gastos');
-                let html = '';
-                let totalDewin = 0;
-                let totalLili = 0;
-                let totalPagado = 0;
-                let totalCostoMes = 0;
-
-                Object.keys(memoriaGastos).forEach(key => {
-                    const gasto = memoriaGastos[key];
-                    const isDewin = gasto.responsable === 'Dewin';
-                    const tagColor = isDewin ? 'bg-blue-50 text-blue-600 border-blue-100' : 'bg-pink-50 text-pink-600 border-pink-100';
-                    const textStyle = gasto.pagado ? 'line-through text-slate-300' : 'text-slate-800';
-                    
-                    // Sumas globales editables
-                    totalCostoMes += parseInt(gasto.monto);
-                    if(isDewin) totalDewin += parseInt(gasto.monto); else totalLili += parseInt(gasto.monto);
-                    if(gasto.pagado) totalPagado += parseInt(gasto.monto);
-
-                    html += `
-                        <div class="p-4 flex items-center justify-between hover:bg-slate-50 transition-colors">
-                            <div class="flex items-center gap-3 flex-1 min-w-0">
-                                <label class="relative flex items-center justify-center p-1 cursor-pointer">
-                                    <input type="checkbox" 
-                                           ${gasto.pagado ? 'checked' : ''} 
-                                           class="peer appearance-none w-5 h-5 border-2 border-slate-300 rounded-md checked:bg-slate-700 checked:border-slate-700 transition-all cursor-pointer"
-                                           onchange="cambiarEstadoPago(${gasto.id}, this.checked)">
-                                    <i data-lucide="check" class="absolute w-3.5 h-3.5 text-white opacity-0 peer-checked:opacity-100 transition-opacity pointer-events-none"></i>
-                                </label>
-                                <div class="min-w-0 flex-1">
-                                    <div class="flex items-center gap-2">
-                                        <p class="text-sm font-semibold truncate ${textStyle}">${gasto.nombre}</p>
-                                        <button onclick="abrirEditor(${gasto.id})" class="text-slate-300 hover:text-blue-500 p-0.5 rounded transition-colors">
-                                            <i data-lucide="edit-2" class="w-3 h-3"></i>
-                                        </button>
-                                    </div>
-                                    <p class="text-[10px] text-slate-400 truncate mt-0.5">
-                                        F. Pago: <span class="font-medium text-slate-600">${gasto.fecha}</span> | Cuotas: <span class="font-medium text-slate-600">${gasto.cuotas}</span>
-                                    </p>
-                                </div>
-                            </div>
-                            <div class="text-right ml-2">
-                                <p class="text-sm font-bold text-slate-900">$${parseInt(gasto.monto).toLocaleString('es-CO')}</p>
-                                <span class="inline-block text-[9px] uppercase font-bold px-1.5 py-0.5 rounded-md border mt-1 ${tagColor}">
-                                    ${gasto.responsable}
-                                </span>
-                            </div>
-                        </div>
-                    `;
-                });
-
-                contenedor.innerHTML = html;
-                document.getElementById('total-dewin').innerText = `$${totalDewin.toLocaleString('es-CO')}`;
-                document.getElementById('total-lili').innerText = `$${totalLili.toLocaleString('es-CO')}`;
-
-                // Aplicar Ahorros desde la nube
-                document.getElementById('range-dewin').value = data.ahorroDewin || 0;
-                let ahorroLili = 0;
-                ['sem1', 'sem2', 'sem3', 'sem4'].forEach(semId => {
-                    const checkedStatus = data.ahorrosLili?.[semId] || false;
-                    document.getElementById(semId).checked = checkedStatus;
-                    const lbl = document.getElementById(`lbl-${semId}`);
-                    if(checkedStatus) {
-                        ahorroLili += 90000;
-                        lbl.className = "flex flex-col items-center p-2 rounded-lg border border-pink-300 bg-pink-50/50 cursor-pointer select-none transition-all";
-                    } else {
-                        lbl.className = "flex flex-col items-center p-2 bg-white rounded-lg border border-slate-200 cursor-pointer select-none transition-all";
-                    }
-                });
-
-                const ahorroDewin = parseInt(data.ahorroDewin || 0);
-                document.getElementById('txt-ahorro-dewin').innerText = `$${ahorroDewin.toLocaleString('es-CO')} / $400.000`;
-                document.getElementById('txt-ahorro-lili').innerText = `$${ahorroLili.toLocaleString('es-CO')} / $360.000`;
-
-                // Recalcular barras de progreso
-                const porcPagos = Math.round((totalPagado / totalCostoMes) * 100) || 0;
-                document.getElementById('pago-porcentaje').innerText = `${porcPagos}%`;
-                document.getElementById('pago-barra').style.width = `${porcPagos}%`;
-
-                const porcAhorro = Math.round(((ahorroDewin + ahorroLili) / metaAhorroTotal) * 100) || 0;
-                document.getElementById('ahorro-porcentaje').innerText = `${porcAhorro}%`;
-                document.getElementById('ahorro-barra').style.width = `${porcAhorro}%`;
-
-                marcarIconoNube(true);
-                lucide.createIcons();
-
+                renderizarInterfazLocal(data);
+                marcarIconoNube('sincronizado');
             } catch (error) {
-                console.error("Error sincronizando:", error);
-                marcarIconoNube(false);
+                console.log("Usando matriz local protegida.");
+                renderizarInterfazLocal();
+                marcarIconoNube('error');
             }
         }
 
+        function renderizarInterfazLocal(dataNube = null) {
+            const contenedor = document.getElementById('lista-gastos');
+            let html = '';
+            let totalDewin = 0;
+            let totalLili = 0;
+            let totalPagado = 0;
+            let totalCostoMes = 0;
+
+            Object.keys(memoriaGastos).forEach(key => {
+                const gasto = memoriaGastos[key];
+                const isDewin = gasto.responsable === 'Dewin';
+                const tagColor = isDewin ? 'bg-blue-50 text-blue-600 border-blue-100' : 'bg-pink-50 text-pink-600 border-pink-100';
+                const textStyle = gasto.pagado ? 'line-through text-slate-300' : 'text-slate-800';
+                
+                totalCostoMes += parseInt(gasto.monto);
+                if(isDewin) totalDewin += parseInt(gasto.monto); else totalLili += parseInt(gasto.monto);
+                if(gasto.pagado) totalPagado += parseInt(gasto.monto);
+
+                html += `
+                    <div class="p-4 flex items-center justify-between hover:bg-slate-50 transition-colors">
+                        <div class="flex items-center gap-3 flex-1 min-w-0">
+                            <label class="relative flex items-center justify-center p-1 cursor-pointer">
+                                <input type="checkbox" 
+                                       ${gasto.pagado ? 'checked' : ''} 
+                                       class="peer appearance-none w-5 h-5 border-2 border-slate-300 rounded-md checked:bg-slate-700 checked:border-slate-700 transition-all cursor-pointer"
+                                       onchange="cambiarEstadoPago(${gasto.id}, this.checked)">
+                                <i data-lucide="check" class="absolute w-3.5 h-3.5 text-white opacity-0 peer-checked:opacity-100 transition-opacity pointer-events-none"></i>
+                            </label>
+                            <div class="min-w-0 flex-1">
+                                <div class="flex items-center gap-2">
+                                    <p class="text-sm font-semibold truncate ${textStyle}">${gasto.nombre}</p>
+                                    <button onclick="abrirEditor(${gasto.id})" class="text-slate-300 hover:text-blue-500 p-0.5 rounded transition-colors">
+                                        <i data-lucide="edit-2" class="w-3 h-3"></i>
+                                    </button>
+                                </div>
+                                <p class="text-[10px] text-slate-400 truncate mt-0.5">
+                                    F. Pago: <span class="font-medium text-slate-600">${gasto.fecha}</span> | Cuotas: <span class="font-medium text-slate-600">${gasto.cuotas}</span>
+                                </p>
+                            </div>
+                        </div>
+                        <div class="text-right ml-2">
+                            <p class="text-sm font-bold text-slate-900">$${parseInt(gasto.monto).toLocaleString('es-CO')}</p>
+                            <span class="inline-block text-[9px] uppercase font-bold px-1.5 py-0.5 rounded-md border mt-1 ${tagColor}">
+                                ${gasto.responsable}
+                            </span>
+                        </div>
+                    </div>
+                `;
+            });
+
+            contenedor.innerHTML = html;
+            document.getElementById('total-dewin').innerText = `$${totalDewin.toLocaleString('es-CO')}`;
+            document.getElementById('total-lili').innerText = `$${totalLili.toLocaleString('es-CO')}`;
+
+            // Actualizar inputs de ahorro
+            const dewinAhorroVal = dataNube ? (dataNube.ahorroDewin || 0) : parseInt(document.getElementById('range-dewin').value);
+            document.getElementById('range-dewin').value = dewinAhorroVal;
+            document.getElementById('txt-ahorro-dewin').innerText = `$${dewinAhorroVal.toLocaleString('es-CO')} / $400.000`;
+
+            let ahorroLili = 0;
+            ['sem1', 'sem2', 'sem3', 'sem4'].forEach(semId => {
+                const chk = document.getElementById(semId);
+                if (dataNube) {
+                    chk.checked = dataNube.ahorrosLili?.[semId] || false;
+                }
+                const lbl = document.getElementById(`lbl-${semId}`);
+                if(chk.checked) {
+                    ahorroLili += 90000;
+                    lbl.className = "flex flex-col items-center p-2 rounded-lg border border-pink-300 bg-pink-50/50 cursor-pointer select-none transition-all";
+                } else {
+                    lbl.className = "flex flex-col items-center p-2 bg-white rounded-lg border border-slate-200 cursor-pointer select-none transition-all";
+                }
+            });
+            document.getElementById('txt-ahorro-lili').innerText = `$${ahorroLili.toLocaleString('es-CO')} / $360.000`;
+
+            const porcPagos = Math.round((totalPagado / totalCostoMes) * 100) || 0;
+            document.getElementById('pago-porcentaje').innerText = `${porcPagos}%`;
+            document.getElementById('pago-barra').style.width = `${porcPagos}%`;
+
+            const porcAhorro = Math.round(((dewinAhorroVal + ahorroLili) / metaAhorroTotal) * 100) || 0;
+            document.getElementById('ahorro-porcentaje').innerText = `${porcAhorro}%`;
+            document.getElementById('ahorro-barra').style.width = `${porcAhorro}%`;
+
+            lucide.createIcons();
+        }
+
         async function subirDatosNube() {
-            marcarIconoNube(false);
+            marcarIconoNube('cargando');
             const payload = {
                 gastos: memoriaGastos,
                 ahorroDewin: parseInt(document.getElementById('range-dewin').value),
@@ -315,126 +314,64 @@
                     sem4: document.getElementById('sem4').checked
                 }
             };
-
+            renderizarInterfazLocal();
             try {
-                await fetch(FIREBASE_URL, {
-                    method: 'PUT',
-                    body: JSON.stringify(payload)
-                  ];
+                await fetch(FIREBASE_URL, { method: 'PUT', body: JSON.stringify(payload) });
+                marcarIconoNube('sincronizado');
+            } catch (e) { marcarIconoNube('error'); }
+        }
 
-        const totalPresupuestoGastos = 2553000; 
-        const metaAhorroTotal = 680000; // 200k Dewin + 480k Ella
+        function cambiarEstadoPago(id, estado) {
+            memoriaGastos[id].pagado = estado;
+            subirDatosNube();
+        }
 
-        function inicializarApp() {
-            const contenedor = document.getElementById('lista-gastos');
-            let html = '';
-            const estadosGastosSaves = JSON.parse(localStorage.getItem('finanzas_gastos_v3')) || {};
-
-            datosGastos.forEach(gasto => {
-                const isDewin = gasto.responsable === 'Dewin';
-                const tagColor = isDewin ? 'bg-blue-50 text-blue-600 border-blue-100' : 'bg-pink-50 text-pink-600 border-pink-100';
-                
-                const isChecked = estadosGastosSaves[gasto.id] ? 'checked' : '';
-                const textStyle = estadosGastosSaves[gasto.id] ? 'line-through text-slate-300' : 'text-slate-800';
-
-                html += `
-                    <div class="p-4 flex items-center justify-between hover:bg-slate-50 transition-colors" id="item-${gasto.id}">
-                        <div class="flex items-center gap-3.5 flex-1 min-w-0">
-                            <label class="relative flex items-center justify-center p-1 cursor-pointer">
-                                <input type="checkbox" 
-                                       id="chk-gasto-${gasto.id}"
-                                       value="${gasto.monto}" 
-                                       data-id="${gasto.id}"
-                                       ${isChecked}
-                                       class="class-gasto-check peer appearance-none w-5 h-5 border-2 border-slate-300 rounded-md checked:bg-slate-700 checked:border-slate-700 transition-all cursor-pointer"
-                                       onchange="toggleGastoVisual(${gasto.id})">
-                                <i data-lucide="check" class="absolute w-3.5 h-3.5 text-white opacity-0 peer-checked:opacity-100 transition-opacity pointer-events-none"></i>
-                            </label>
-                            <div class="min-w-0">
-                                <p class="text-sm font-semibold transition-all label-nombre ${textStyle}">${gasto.nombre}</p>
-                                <p class="text-[11px] text-slate-400 truncate mt-0.5">${gasto.subtext}</p>
-                            </div>
-                        </div>
-                        <div class="text-right ml-2">
-                            <p class="text-sm font-bold text-slate-900">$${gasto.monto.toLocaleString('es-CO')}</p>
-                            <span class="inline-block text-[9px] uppercase font-bold px-1.5 py-0.5 rounded-md border mt-1 ${tagColor}">
-                                ${gasto.responsable}
-                            </span>
-                        </div>
-                    </div>
-                `;
-            });
-
-            contenedor.innerHTML = html;
-            document.getElementById('range-dewin').value = localStorage.getItem('finanzas_ahorro_dewin_v3') || 0;
-            
-            ['sem1', 'sem2', 'sem3', 'sem4'].forEach(semId => {
-                const checkedStatus = localStorage.getItem(`finanzas_ahorro_${semId}_v3`) === 'true';
-                document.getElementById(semId).checked = checkedStatus;
-            });
-
+        function abrirEditor(id) {
+            const gasto = memoriaGastos[id];
+            document.getElementById('edit-id').value = id;
+            document.getElementById('edit-titulo').innerText = `Editar: ${gasto.nombre}`;
+            document.getElementById('edit-monto').value = gasto.monto;
+            document.getElementById('edit-cuotas').value = gasto.cuotas;
+            document.getElementById('edit-fecha').value = gasto.fecha;
+            document.getElementById('modal-editor').classList.remove('hidden');
             lucide.createIcons();
-            guardarYCalcular();
         }
 
-        function toggleGastoVisual(id) {
-            const item = document.getElementById(`item-${id}`);
-            const nombre = item.querySelector('.label-nombre');
-            const checkbox = document.getElementById(`chk-gasto-${id}`);
-            nombre.className = checkbox.checked ? 'text-sm font-semibold transition-all label-nombre line-through text-slate-300' : 'text-sm font-semibold transition-all label-nombre text-slate-800';
-            guardarYCalcular();
+        function cerrarEditor() {
+            document.getElementById('modal-editor').classList.add('hidden');
         }
 
-        function guardarYCalcular() {
-            const estadosGastos = {};
-            const checkboxes = document.querySelectorAll('.class-gasto-check');
-            let sumatoriaPagado = 0;
-
-            checkboxes.forEach(cb => {
-                const idGasto = cb.getAttribute('data-id');
-                estadosGastos[idGasto] = cb.checked;
-                if(cb.checked) sumatoriaPagado += parseInt(cb.value);
-            });
-            localStorage.setItem('finanzas_gastos_v3', JSON.stringify(estadosGastos));
-
-            const ahorroDewin = parseInt(document.getElementById('range-dewin').value);
-            localStorage.setItem('finanzas_ahorro_dewin_v3', ahorroDewin);
-            document.getElementById('txt-ahorro-dewin').innerText = `$${ahorroDewin.toLocaleString('es-CO')} / $200.000`;
-
-            let ahorroElla = 0;
-            ['sem1', 'sem2', 'sem3', 'sem4'].forEach(semId => {
-                const ch = document.getElementById(semId);
-                const lbl = document.getElementById(`lbl-${semId}`);
-                localStorage.setItem(`finanzas_ahorro_${semId}_v3`, ch.checked);
-                if(ch.checked) {
-                    ahorroElla += parseInt(ch.value);
-                    lbl.className = "flex flex-col items-center p-2 rounded-lg border border-pink-300 bg-pink-50/50 cursor-pointer select-none transition-all";
-                } else {
-                    lbl.className = "flex flex-col items-center p-2 bg-white rounded-lg border border-slate-200 cursor-pointer select-none transition-all";
-                }
-            });
-            document.getElementById('txt-ahorro-ella').innerText = `$${ahorroElla.toLocaleString('es-CO')} / $480.000`;
-
-            const porcPagos = Math.round((sumatoriaPagado / totalPresupuestoGastos) * 100) || 0;
-            document.getElementById('pago-porcentaje').innerText = `${porcPagos}%`;
-            document.getElementById('pago-barra').style.width = `${porcPagos}%`;
-
-            const ahorroTotalActual = ahorroDewin + ahorroElla;
-            const porcAhorro = Math.round((ahorroTotalActual / metaAhorroTotal) * 100) || 0;
-            document.getElementById('ahorro-porcentaje').innerText = `${porcAhorro}%`;
-            document.getElementById('ahorro-barra').style.width = `${porcAhorro}%`;
+        function guardarCambiosGasto() {
+            const id = document.getElementById('edit-id').value;
+            memoriaGastos[id].monto = parseInt(document.getElementById('edit-monto').value) || 0;
+            memoriaGastos[id].cuotas = document.getElementById('edit-cuotas').value || 'N/A';
+            memoriaGastos[id].fecha = document.getElementById('edit-fecha').value || 'Mes';
+            cerrarEditor();
+            subirDatosNube();
         }
 
-        function reiniciarMes() {
-            if(confirm('¿Reiniciar todos los pagos y ahorros de este periodo?')) {
-                localStorage.removeItem('finanzas_gastos_v3');
-                localStorage.removeItem('finanzas_ahorro_dewin_v3');
-                ['sem1', 'sem2', 'sem3', 'sem4'].forEach(id => localStorage.removeItem(`finanzas_ahorro_${id}_v3`));
-                inicializarApp();
+        async function reiniciarEstadoMes() {
+            if(confirm('¿Reiniciar los estados de pago?')) {
+                Object.keys(memoriaGastos).forEach(k => memoriaGastos[k].pagado = false);
+                document.getElementById('range-dewin').value = 0;
+                ['sem1', 'sem2', 'sem3', 'sem4'].forEach(id => document.getElementById(id).checked = false);
+                await subirDatosNube();
             }
         }
 
-        window.onload = inicializarApp;
+        function marcarIconoNube(estado) {
+            const ind = document.getElementById('indicador-nube');
+            if(estado === 'sincronizado') {
+                ind.innerHTML = `<i data-lucide="cloud-check" class="w-5 h-5 text-emerald-300"></i>`;
+            } else if (estado === 'cargando') {
+                ind.innerHTML = `<i data-lucide="refresh-cw" class="w-5 h-5 text-blue-300 animate-spin"></i>`;
+            } else {
+                ind.innerHTML = `<i data-lucide="cloud-lightning" class="w-5 h-5 text-amber-400"></i>`;
+            }
+            lucide.createIcons();
+        }
+
+        window.onload = inicializarEstructura;
     </script>
 </body>
 </html>
