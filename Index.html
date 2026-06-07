@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -79,7 +80,7 @@
             </div>
 
             <div class="divide-y divide-slate-100 min-h-[100px] bg-white" id="lista-gastos">
-                <div class="p-8 text-center text-slate-400 text-sm">Cargando información local...</div>
+                <div class="p-8 text-center text-slate-400 text-sm">Cargando interfaz...</div>
             </div>
         </section>
 
@@ -195,53 +196,57 @@
             "g11": { id: "g11", nombre: 'Transporte Dewin', monto: 288000, responsable: 'Dewin', cuotas: 'N/A', fecha: 'Mes', pagado: false }
         };
 
-        let memoriaGastos = {};
+        let memoriaGastos = JSON.parse(JSON.stringify(gastosPorDefecto));
         const metaAhorTotal = 760000;
 
         function inicializarApp() {
-            // Renderizado preventivo instantáneo para asegurar que la pantalla NUNCA se quede en blanco
-            memoriaGastos = JSON.parse(JSON.stringify(gastosPorDefecto));
+            // Renderizado forzado inmediato con los datos locales base
             renderizarInterfazLocal(null);
             
-            // Descarga de la nube en segundo plano
+            // Intenta conectar con la nube en segundo plano
             descargarDatosNube();
-            setInterval(descargarDatosNube, 10000); // Ampliado a 10s para evitar colisiones
+            setInterval(descargarDatosNube, 12000);
         }
 
         async function descargarDatosNube() {
             try {
                 const res = await fetch(FIREBASE_URL);
-                if (!res.ok) throw new Error();
+                if (!res.ok) throw new Error("Error HTTP");
                 const data = await res.json();
                 
-                if (data) {
+                // Si la nube responde con datos válidos y estructurados
+                if (data && data.gastos) {
                     let gastosNube = data.gastos;
                     
-                    if (gastosNube) {
-                        if (Array.isArray(gastosNube)) {
-                            memoriaGastos = {};
-                            gastosNube.forEach((g, idx) => {
-                                if (g && g.nombre) {
-                                    const idLimpio = g.id ? String(g.id) : "g_" + idx;
-                                    memoriaGastos[idLimpio] = {
-                                        id: idLimpio,
-                                        nombre: g.nombre,
-                                        monto: parseInt(g.monto) || 0,
-                                        responsable: g.responsable || 'Dewin',
-                                        cuotas: g.cuotas || 'N/A',
-                                        fecha: g.fecha || 'Mes',
-                                        pagado: g.pagado || false
-                                    };
-                                }
-                            });
-                        } else {
-                            memoriaGastos = gastosNube;
-                        }
-                        renderizarInterfazLocal(data);
-                        marcarIconoNube('sincronizado');
+                    if (Array.isArray(gastosNube)) {
+                        memoriaGastos = {};
+                        gastosNube.forEach((g, idx) => {
+                            if (g && g.nombre) {
+                                const idLimpio = g.id ? String(g.id) : "g_" + idx;
+                                memoriaGastos[idLimpio] = {
+                                    id: idLimpio,
+                                    nombre: g.nombre,
+                                    monto: parseInt(g.monto) || 0,
+                                    responsable: g.responsable || 'Dewin',
+                                    cuotas: g.cuotas || 'N/A',
+                                    fecha: g.fecha || 'Mes',
+                                    pagado: g.pagado || false
+                                };
+                            }
+                        });
+                    } else if (typeof gastosNube === 'object') {
+                        memoriaGastos = gastosNube;
                     }
+                    renderizarInterfazLocal(data);
+                    marcarIconoNube('sincronizado');
+                } else {
+                    // Si data viene null o incompleto, no rompemos el flujo, pintamos local
+                    renderizarInterfazLocal(null);
+                    marcarIconoNube('error');
                 }
             } catch (error) {
+                // En caso de fallo de red, se mantiene pintada la memoria local intacta
+                renderizarInterfazLocal(null);
                 marcarIconoNube('error');
             }
         }
@@ -263,6 +268,11 @@
             let totalCostoMes = 0;
 
             const llaves = Object.keys(memoriaGastos);
+
+            if (llaves.length === 0) {
+                contenedor.innerHTML = '<div class="p-8 text-center text-slate-400 text-sm">No hay gastos agregados.</div>';
+                return;
+            }
 
             llaves.forEach(key => {
                 const gasto = memoriaGastos[key];
@@ -324,11 +334,4 @@
                     ahorroLili += 90000;
                     if(lbl) lbl.className = "flex flex-col items-center p-2 rounded-lg border border-pink-300 bg-pink-50 text-pink-600 transition-all cursor-pointer select-none";
                 } else {
-                    if(lbl) lbl.className = "flex flex-col items-center p-2 bg-white rounded-lg border border-slate-200 text-slate-700 transition-all cursor-pointer select-none";
-                }
-            });
-            document.getElementById('txt-ahorro-lili').innerText = `$${ahorroLili.toLocaleString('es-CO')} / $360.000`;
-
-            const porcPagos = totalCostoMes > 0 ? Math.round((totalPagado / totalCostoMes) * 100) : 0;
-            document.getElementById('pago-porcentaje').innerText = `${porcPagos}%`;
-          
+                    if(lbl) lbl.className = "flex flex-col items-center p-2 bg-white rounde
