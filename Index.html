@@ -15,8 +15,8 @@
                 <h1 class="text-xl font-bold tracking-tight">Control Financiero ☁️</h1>
                 <p class="text-xs text-blue-100 mt-0.5">Sincronización en la Nube en Vivo</p>
             </div>
-            <div id="indicador-nube" class="bg-white/20 p-2 rounded-xl backdrop-blur-xs transition-colors">
-                <i data-lucide="cloud" class="w-5 h-5 text-amber-200"></i>
+            <div id="indicador-nube" class="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center backdrop-blur-xs transition-all">
+                <i data-lucide="cloud" class="w-4 h-4 text-slate-200"></i>
             </div>
         </div>
     </header>
@@ -169,7 +169,7 @@
             3: { id: 3, nombre: 'Merienda Valentina', monto: 5000, responsable: 'Lili', cuotas: 'N/A', fecha: 'Semanal', pagado: false },
             4: { id: 4, nombre: 'Internet', monto: 60000, responsable: 'Lili', cuotas: 'N/A', fecha: 'Mes', pagado: false },
             5: { id: 5, nombre: 'Transporte Lili', monto: 240000, responsable: 'Lili', cuotas: 'N/A', fecha: 'Mes', pagado: false },
-            6: { id: 6, nombre: 'Arriendo', monto: 370000, responsable: 'Dewin', cuotas: 'N/A', fecha: 'Mes', pagado: false },
+            6: { id: 6, font: 'bold', nombre: 'Arriendo', monto: 370000, responsable: 'Dewin', cuotas: 'N/A', fecha: 'Mes', pagado: false },
             7: { id: 7, nombre: 'Luz', monto: 220000, responsable: 'Dewin', cuotas: 'N/A', fecha: 'Mes', pagado: false },
             8: { id: 8, nombre: 'Addi', monto: 216000, responsable: 'Dewin', cuotas: '3', fecha: '10', pagado: false },
             9: { id: 9, nombre: 'Tarjeta', monto: 256000, responsable: 'Dewin', cuotas: 'N/A', fecha: '17', pagado: false },
@@ -177,26 +177,27 @@
             11: { id: 11, nombre: 'Transporte Dewin', monto: 288000, responsable: 'Dewin', cuotas: 'N/A', fecha: 'Mes', pagado: false }
         };
 
-        let memoriaGastos = gastosPorDefecto;
+        let memoriaGastos = Object.assign({}, gastosPorDefecto);
         const metaAhorroTotal = 760000;
 
         function inicializarEstructura() {
+            // PASO 1 CRÍTICO: Forzar el render de los datos locales sin importar la nube
             renderizarInterfazLocal();
-            descargarDatosNube();
-            setInterval(descargarDatosNube, 5000);
+            
+            // PASO 2: Sincronizar asíncronamente con la base de datos
+            setTimeout(descargarDatosNube, 500);
+            setInterval(descargarDatosNube, 6000);
         }
 
         async function descargarDatosNube() {
             try {
                 const res = await fetch(FIREBASE_URL);
-                if (!res.ok) throw new Error("Error en red");
+                if (!res.ok) throw new Error("Error HTTP");
                 const data = await res.json();
                 
-                // Si Firebase responde NULL o no tiene gastos, forzamos la inicialización estructural
+                // Si la base de datos responde vacía por completo, le inyectamos la data local inicial
                 if (!data || !data.gastos) {
-                    console.log("Firebase vacío. Inicializando nodo estructural en la nube...");
-                    memoriaGastos = gastosPorDefecto;
-                    renderizarInterfazLocal();
+                    marcarIconoNube('cargando');
                     await subirDatosNube();
                     return;
                 }
@@ -205,8 +206,7 @@
                 renderizarInterfazLocal(data);
                 marcarIconoNube('sincronizado');
             } catch (error) {
-                console.log("Trabajando en modo local seguro:", error);
-                renderizarInterfazLocal();
+                console.warn("Modo local activo:", error);
                 marcarIconoNube('error');
             }
         }
@@ -302,7 +302,6 @@
         }
 
         async function subirDatosNube() {
-            marcarIconoNube('cargando');
             const payload = {
                 gastos: memoriaGastos,
                 ahorroDewin: parseInt(document.getElementById('range-dewin').value || 0),
@@ -315,12 +314,12 @@
             };
             
             try {
-                await fetch(FIREBASE_URL, { 
+                const response = await fetch(FIREBASE_URL, { 
                     method: 'PUT', 
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(payload) 
                 });
-                marcarIconoNube('sincronizado');
+                if(response.ok) marcarIconoNube('sincronizado');
             } catch (e) { 
                 marcarIconoNube('error'); 
             }
@@ -330,7 +329,4 @@
             if(memoriaGastos[id]) {
                 memoriaGastos[id].pagado = estado;
                 renderInitializeForced();
-            }
-        }
-
-        function abr
+ 
