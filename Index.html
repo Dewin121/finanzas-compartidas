@@ -4,12 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Finanzas en Vivo - Lili & Dewin</title>
-    <!-- CDN Estable de Tailwind v3 para evitar bloqueos de renderizado en móvil -->
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
 </head>
 <body class="bg-slate-50 text-slate-800 font-sans min-h-screen pb-12">
 
-    <!-- Encabezado -->
     <header class="bg-gradient-to-r from-blue-600 to-indigo-600 text-white py-5 px-4 shadow-md rounded-b-2xl">
         <div class="max-w-md mx-auto flex justify-between items-center">
             <div>
@@ -24,9 +22,8 @@
 
     <main class="max-w-md mx-auto px-4 mt-6 space-y-6">
 
-        <!-- DASHBOARD GENERAL -->
         <section class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100">
-            <h2 class="text-sm font-semibold uppercase tracking-wider text-slate-400 mb-4 flex items-center gap-2">
+            <h2 class="text-sm font-semibold uppercase tracking-wider text-slate-400 mb-4">
                 📊 Balance del Mes
             </h2>
             
@@ -41,7 +38,6 @@
                 </div>
             </div>
 
-            <!-- Barras de Progreso -->
             <div class="space-y-4">
                 <div>
                     <div class="flex justify-between text-xs font-medium mb-1.5">
@@ -65,23 +61,20 @@
             </div>
         </section>
 
-        <!-- LISTA DE GASTOS -->
         <section class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
             <div class="p-5 border-b border-slate-100 flex justify-between items-center">
-                <h2 class="text-sm font-semibold uppercase tracking-wider text-slate-400 flex items-center gap-2">
+                <h2 class="text-sm font-semibold uppercase tracking-wider text-slate-400">
                     📋 Distribución Transparente
                 </h2>
-                <button onclick="reiniciarEstadoMes()" class="text-[11px] bg-red-50 hover:bg-red-100 px-2 py-1 rounded-md font-medium text-red-600 transition-colors">
-                    🔄 Reiniciar Pagos
+                <button onclick="forzarReseteoBaseDatos()" class="text-[11px] bg-red-50 hover:bg-red-100 px-2 py-1 rounded-md font-medium text-red-600 transition-colors">
+                    ⚠️ Forzar Carga Inicial
                 </button>
             </div>
 
-            <div class="divide-y divide-slate-100min-h-[150px] bg-white" id="lista-gastos">
-                <!-- Inyección forzada por JS -->
-            </div>
+            <div class="divide-y divide-slate-100 min-h-[150px] bg-white" id="lista-gastos">
+                </div>
         </section>
 
-        <!-- MODAL PARA EDICIÓN -->
         <div id="modal-editor" class="hidden fixed inset-0 bg-slate-900/40 flex items-center justify-center p-4 z-50">
             <div class="bg-white w-full max-w-sm rounded-2xl p-5 shadow-xl space-y-4">
                 <div class="flex justify-between items-center">
@@ -106,15 +99,14 @@
                     </div>
                 </div>
 
-                <button onclick="guardarCambiosGasto()" class="w-full bg-blue-600 text-white p-2.5 text-sm font-bold rounded-xl shadow-md hover:bg-blue-700 transition-colors">
+                <button onclick="guardarCambiosGasto()" class="w-full bg-blue-600 text-white p-2.5 text-sm font-bold rounded-xl shadow-md">
                     Guardar Parámetros
                 </button>
             </div>
         </div>
 
-        <!-- SECCIÓN DE AHORROS -->
         <section class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100">
-            <h2 class="text-sm font-semibold uppercase tracking-wider text-slate-400 mb-4 flex items-center gap-2">
+            <h2 class="text-sm font-semibold uppercase tracking-wider text-slate-400 mb-4">
                 🐷 Fondos de Ahorro Ajustados
             </h2>
 
@@ -137,22 +129,22 @@
                         <span class="text-xs text-slate-500 font-medium" id="txt-ahorro-lili">$0 / $360.000</span>
                     </div>
                     <div class="grid grid-cols-4 gap-2 mt-2">
-                        <label id="lbl-sem1" class="flex flex-col items-center p-2 bg-white rounded-lg border border-slate-200 cursor-pointer select-none transition-all">
+                        <label id="lbl-sem1" class="flex flex-col items-center p-2 bg-white rounded-lg border border-slate-200 cursor-pointer select-none">
                             <span class="text-[10px] text-slate-400 font-medium">Sem 1</span>
                             <span class="text-[11px] font-bold text-slate-700 mt-0.5">$90k</span>
                             <input type="checkbox" id="sem1" class="hidden" value="90000" onchange="subirDatosNube()">
                         </label>
-                        <label id="lbl-sem2" class="flex flex-col items-center p-2 bg-white rounded-lg border border-slate-200 cursor-pointer select-none transition-all">
+                        <label id="lbl-sem2" class="flex flex-col items-center p-2 bg-white rounded-lg border border-slate-200 cursor-pointer select-none">
                             <span class="text-[10px] text-slate-400 font-medium">Sem 2</span>
                             <span class="text-[11px] font-bold text-slate-700 mt-0.5">$90k</span>
                             <input type="checkbox" id="sem2" class="hidden" value="90000" onchange="subirDatosNube()">
                         </label>
-                        <label id="lbl-sem3" class="flex flex-col items-center p-2 bg-white rounded-lg border border-slate-200 cursor-pointer select-none transition-all">
+                        <label id="lbl-sem3" class="flex flex-col items-center p-2 bg-white rounded-lg border border-slate-200 cursor-pointer select-none">
                             <span class="text-[10px] text-slate-400 font-medium">Sem 3</span>
                             <span class="text-[11px] font-bold text-slate-700 mt-0.5">$90k</span>
                             <input type="checkbox" id="sem3" class="hidden" value="90000" onchange="subirDatosNube()">
                         </label>
-                        <label id="lbl-sem4" class="flex flex-col items-center p-2 bg-white rounded-lg border border-slate-200 cursor-pointer select-none transition-all">
+                        <label id="lbl-sem4" class="flex flex-col items-center p-2 bg-white rounded-lg border border-slate-200 cursor-pointer select-none">
                             <span class="text-[10px] text-slate-400 font-medium">Sem 4</span>
                             <span class="text-[11px] font-bold text-slate-700 mt-0.5">$90k</span>
                             <input type="checkbox" id="sem4" class="hidden" value="90000" onchange="subirDatosNube()">
@@ -164,7 +156,6 @@
     </main>
 
     <script>
-        // URL Limpia de tu Realtime Database
         const FIREBASE_URL = "https://finanza-88b8e-default-rtdb.firebaseio.com/finanzas.json";
 
         const gastosPorDefecto = {
@@ -177,7 +168,7 @@
             "7": { id: 7, nombre: 'Luz', monto: 220000, responsable: 'Dewin', cuotas: 'N/A', fecha: 'Mes', pagado: false },
             "8": { id: 8, nombre: 'Addi', monto: 216000, responsable: 'Dewin', cuotas: '3', fecha: '10', pagado: false },
             "9": { id: 9, nombre: 'Tarjeta', monto: 256000, responsable: 'Dewin', cuotas: 'N/A', fecha: '17', pagado: false },
-            "10": { id: 10, nombre: 'Bancolombia', monto: 253000, responsable: 'Dewin', cuotas: '12', fecha: '01', pagado: false },
+            "10": { id: 10, font: 'bold', nombre: 'Bancolombia', monto: 253000, responsable: 'Dewin', cuotas: '12', fecha: '01', pagado: false },
             "11": { id: 11, nombre: 'Transporte Dewin', monto: 288000, responsable: 'Dewin', cuotas: 'N/A', fecha: 'Mes', pagado: false }
         };
 
@@ -185,10 +176,7 @@
         const metaAhorroTotal = 760000;
 
         function inicializarApp() {
-            // Render de contingencia inmediato con los datos locales definidos arriba
             renderizarInterfazLocal();
-            
-            // Descarga inicial y ciclo de sincronización continua
             descargarDatosNube();
             setInterval(descargarDatosNube, 5000);
         }
@@ -196,19 +184,20 @@
         async function descargarDatosNube() {
             try {
                 const res = await fetch(FIREBASE_URL);
-                if (!res.ok) throw new Error("Error HTTP");
+                if (!res.ok) throw new Error();
                 const data = await res.json();
                 
-                if (data && data.gastos) {
+                // VALIDACIÓN CRÍTICA: Si la nube no tiene la sección "gastos", forzamos la carga.
+                if (data && data.gastos && Object.keys(data.gastos).length > 0) {
                     memoriaGastos = data.gastos;
                     renderizarInterfazLocal(data);
                     marcarIconoNube('sincronizado');
                 } else {
-                    // Si la respuesta es nula o vacía, poblar la nube automáticamente
+                    console.log("Estructura vacía detectada en Firebase. Auto-reparando...");
                     await subirDatosNube();
                 }
             } catch (error) {
-                console.log("Modo local activo:", error);
+                console.log("Trabajando en local.");
                 marcarIconoNube('error');
             }
         }
@@ -236,7 +225,7 @@
                 if(gasto.pagado) totalPagado += parseInt(gasto.monto || 0);
 
                 html += `
-                    <div class="p-4 flex items-center justify-between hover:bg-slate-50 transition-colors">
+                    <div class="p-4 flex items-center justify-between border-b border-slate-100">
                         <div class="flex items-center gap-3 flex-1 min-w-0">
                             <input type="checkbox" ${gasto.pagado ? 'checked' : ''} 
                                    class="w-5 h-5 accent-slate-700 cursor-pointer rounded"
@@ -280,9 +269,9 @@
                 const lbl = document.getElementById(`lbl-${semId}`);
                 if(chk.checked) {
                     ahorroLili += 90000;
-                    if(lbl) lbl.className = "flex flex-col items-center p-2 rounded-lg border border-pink-300 bg-pink-50 cursor-pointer text-pink-600 transition-all";
+                    if(lbl) lbl.className = "flex flex-col items-center p-2 rounded-lg border border-pink-300 bg-pink-50 text-pink-600 transition-all";
                 } else {
-                    if(lbl) lbl.className = "flex flex-col items-center p-2 bg-white rounded-lg border border-slate-200 cursor-pointer text-slate-700 transition-all";
+                    if(lbl) lbl.className = "flex flex-col items-center p-2 bg-white rounded-lg border border-slate-200 text-slate-700 transition-all";
                 }
             });
             document.getElementById('txt-ahorro-lili').innerText = `$${ahorroLili.toLocaleString('es-CO')} / $360.000`;
@@ -321,6 +310,13 @@
             }
         }
 
+        function forzarReseteoBaseDatos() {
+            if(confirm("¿Restablecer los 11 gastos base en la nube?")) {
+                memoriaGastos = Object.assign({}, gastosPorDefecto);
+                renderInitializeForced();
+            }
+        }
+
         function cambiarEstadoPago(id, estado) {
             if(memoriaGastos[id]) {
                 memoriaGastos[id].pagado = estado;
@@ -345,4 +341,16 @@
             const id = document.getElementById('edit-id').value;
             if(memoriaGastos[id]) {
                 memoriaGastos[id].monto = parseInt(document.getElementById('edit-monto').value) || 0;
-                memoriaGastos[id].cuotas = document.getElementB
+                memoriaGastos[id].cuotas = document.getElementById('edit-cuotas').value || 'N/A';
+                memoriaGastos[id].fecha = document.getElementById('edit-fecha').value || 'Mes';
+            }
+            cerrarEditor();
+            renderInitializeForced();
+        }
+
+        function renderInitializeForced() {
+            renderizarInterfazLocal();
+            subirDatosNube();
+        }
+
+     
