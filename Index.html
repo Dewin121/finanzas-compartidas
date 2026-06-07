@@ -4,12 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Finanzas en Vivo - Lili & Dewin</title>
-    <!-- CDN Estable de Tailwind -->
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
 </head>
 <body class="bg-slate-50 text-slate-800 font-sans min-h-screen pb-12">
 
-    <!-- Encabezado -->
     <header class="bg-gradient-to-r from-blue-600 to-indigo-600 text-white py-5 px-4 shadow-md rounded-b-2xl">
         <div class="max-w-md mx-auto flex justify-between items-center">
             <div>
@@ -24,7 +22,6 @@
 
     <main class="max-w-md mx-auto px-4 mt-6 space-y-6">
 
-        <!-- DASHBOARD GENERAL -->
         <section class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100">
             <h2 class="text-sm font-semibold uppercase tracking-wider text-slate-400 mb-4">
                 📊 Balance del Mes
@@ -41,7 +38,6 @@
                 </div>
             </div>
 
-            <!-- Barras de Progreso -->
             <div class="space-y-4">
                 <div>
                     <div class="flex justify-between text-xs font-medium mb-1.5">
@@ -65,7 +61,6 @@
             </div>
         </section>
 
-        <!-- LISTA DE GASTOS -->
         <section class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
             <div class="p-5 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
                 <div>
@@ -74,21 +69,19 @@
                     </h2>
                 </div>
                 <div class="flex gap-2">
-                    <button onclick="abrirCreador()" class="text-xs bg-blue-600 hover:bg-blue-700 text-white px-2.5 py-1.5 rounded-lg font-bold shadow-sm transition-colors cursor-pointer">
+                    <button onclick="abrirCreador()" class="text-xs bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded-lg font-bold shadow-sm transition-colors cursor-pointer">
                         ➕ Añadir Gasto
                     </button>
-                    <button onclick="forzarReseteoBaseDatos()" class="text-[10px] bg-slate-200 hover:bg-slate-300 px-2 py-1.5 rounded-lg font-medium text-slate-600 transition-colors cursor-pointer">
+                    <button onclick="forzarReseteoBaseDatos()" class="text-xs bg-slate-200 hover:bg-slate-300 px-3 py-2 rounded-lg font-medium text-slate-600 transition-colors cursor-pointer">
                         🔄 Cargar Base
                     </button>
                 </div>
             </div>
 
             <div class="divide-y divide-slate-100 min-h-[100px] bg-white" id="lista-gastos">
-                <!-- Se inyecta dinámicamente -->
-            </div>
+                </div>
         </section>
 
-        <!-- MODAL ÚNICO PARA CREACIÓN / EDICIÓN -->
         <div id="modal-editor" class="hidden fixed inset-0 bg-slate-900/40 flex items-center justify-center p-4 z-50">
             <div class="bg-white w-full max-w-sm rounded-2xl p-5 shadow-xl space-y-4">
                 <div class="flex justify-between items-center">
@@ -134,7 +127,6 @@
             </div>
         </div>
 
-        <!-- SECCIÓN DE AHORROS -->
         <section class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100">
             <h2 class="text-sm font-semibold uppercase tracking-wider text-slate-400 mb-4">
                 🐷 Fondos de Ahorro Ajustados
@@ -189,25 +181,25 @@
         const FIREBASE_URL = "https://finanza-88b8e-default-rtdb.firebaseio.com/finanzas.json";
 
         const gastosPorDefecto = {
-            "1": { id: "1", nombre: 'Mercado Semanal', monto: 125000, responsable: 'Lili', cuotas: 'N/A', fecha: 'Semanal', pagado: false },
-            "2": { id: "2", nombre: 'Apoyo Madre', monto: 25000, responsable: 'Lili', cuotas: 'N/A', fecha: 'Semanal', pagado: false },
-            "3": { id: "3", nombre: 'Merienda Valentina', monto: 5000, responsable: 'Lili', cuotas: 'N/A', fecha: 'Semanal', pagado: false },
-            "4": { id: "4", nombre: 'Internet', monto: 60000, responsable: 'Lili', cuotas: 'N/A', fecha: 'Mes', pagado: false },
-            "5": { id: "5", nombre: 'Transporte Lili', monto: 240000, responsable: 'Lili', cuotas: 'N/A', fecha: 'Mes', pagado: false },
-            "6": { id: "6", nombre: 'Arriendo', monto: 370000, responsable: 'Dewin', cuotas: 'N/A', fecha: 'Mes', pagado: false },
-            "7": { id: "7", nombre: 'Luz', monto: 220000, responsable: 'Dewin', cuotas: 'N/A', fecha: 'Mes', pagado: false },
-            "8": { id: "8", nombre: 'Addi', monto: 216000, responsable: 'Dewin', cuotas: '3', fecha: '10', pagado: false },
-            "9": { id: "9", nombre: 'Tarjeta', monto: 256000, responsable: 'Dewin', cuotas: 'N/A', fecha: '17', pagado: false },
-            "10": { id: "10", nombre: 'Bancolombia', monto: 253000, responsable: 'Dewin', cuotas: '12', fecha: '01', pagado: false },
-            "11": { id: "11", nombre: 'Transporte Dewin', monto: 288000, responsable: 'Dewin', cuotas: 'N/A', fecha: 'Mes', pagado: false }
+            "g1": { id: "g1", nombre: 'Mercado Semanal', monto: 125000, responsable: 'Lili', cuotas: 'N/A', fecha: 'Semanal', pagado: false },
+            "g2": { id: "g2", nombre: 'Apoyo Madre', monto: 25000, responsable: 'Lili', cuotas: 'N/A', fecha: 'Semanal', pagado: false },
+            "g3": { id: "g3", nombre: 'Merienda Valentina', monto: 5000, responsable: 'Lili', cuotas: 'N/A', fecha: 'Semanal', pagado: false },
+            "g4": { id: "g4", nombre: 'Internet', monto: 60000, responsable: 'Lili', cuotas: 'N/A', fecha: 'Mes', pagado: false },
+            "g5": { id: "g5", nombre: 'Transporte Lili', monto: 240000, responsable: 'Lili', cuotas: 'N/A', fecha: 'Mes', pagado: false },
+            "g6": { id: "g6", nombre: 'Arriendo', monto: 370000, responsable: 'Dewin', cuotas: 'N/A', fecha: 'Mes', pagado: false },
+            "g7": { id: "g7", nombre: 'Luz', monto: 220000, responsable: 'Dewin', cuotas: 'Mes', pagado: false },
+            "g8": { id: "g8", nombre: 'Addi', monto: 216000, responsable: 'Dewin', cuotas: '3', fecha: '10', pagado: false },
+            "g9": { id: "g9", nombre: 'Tarjeta', monto: 256000, responsable: 'Dewin', cuotas: 'N/A', fecha: '17', pagado: false },
+            "g10": { id: "g10", font: 'Bancolombia', nombre: 'Bancolombia', monto: 253000, responsable: 'Dewin', cuotas: '12', fecha: '01', pagado: false },
+            "g11": { id: "g11", nombre: 'Transporte Dewin', monto: 288000, responsable: 'Dewin', cuotas: 'N/A', fecha: 'Mes', pagado: false }
         };
 
         let memoriaGastos = {};
-        const metaAhorroTotal = 760000;
+        const metaAhorTotal = 760000;
 
         function inicializarApp() {
             descargarDatosNube();
-            setInterval(descargarDatosNube, 4000);
+            setInterval(descargarDatosNube, 5000);
         }
 
         async function descargarDatosNube() {
@@ -216,13 +208,23 @@
                 if (!res.ok) throw new Error();
                 const data = await res.json();
                 
-                // Si la nube tiene la propiedad gastos armada, la usamos
-                if (data && data.gastos && Object.keys(data.gastos).length > 0) {
-                    memoriaGastos = data.gastos;
+                if (data && data.gastos) {
+                    // NORMALIZACIÓN: Si Firebase lo devolvió como Array por culpa de los índices numéricos, lo convertimos a objeto limpio
+                    if (Array.isArray(data.gastos)) {
+                        memoriaGastos = {};
+                        data.gastos.forEach((g, index) => {
+                            if (g) {
+                                const idLimpio = g.id ? String(g.id) : "g_" + index;
+                                memoriaGastos[idLimpio] = g;
+                            }
+                        });
+                    } else {
+                        memoriaGastos = data.gastos;
+                    }
                     renderizarInterfazLocal(data);
                     marcarIconoNube('sincronizado');
                 } else {
-                    // CORRECCIÓN AUTOMÁTICA: Si está vacío, monta la base por defecto sin esperar el botón
+                    // Si está totalmente vacío o corrupto, inyectamos la base por defecto
                     memoriaGastos = Object.assign({}, gastosPorDefecto);
                     renderizarInterfazLocal(null);
                     await subirDatosNube();
@@ -245,11 +247,11 @@
             const llaves = Object.keys(memoriaGastos);
 
             if (llaves.length === 0) {
-                html = `<div class="p-8 text-center text-slate-400 text-sm">Cargando datos...</div>`;
+                html = `<div class="p-8 text-center text-slate-400 text-sm">No hay gastos registrados. Oprime 'Cargar Base'.</div>`;
             } else {
                 llaves.forEach(key => {
                     const gasto = memoriaGastos[key];
-                    if (!gasto) return;
+                    if (!gasto || !gasto.nombre) return;
                     
                     const isDewin = gasto.responsable === 'Dewin';
                     const tagColor = isDewin ? 'bg-blue-50 text-blue-600 border-blue-100' : 'bg-pink-50 text-pink-600 border-pink-100';
@@ -317,7 +319,7 @@
             document.getElementById('pago-porcentaje').innerText = `${porcPagos}%`;
             document.getElementById('pago-barra').style.width = `${porcPagos}%`;
 
-            const porcAhorro = Math.round(((dewinAhorroVal + ahorroLili) / metaAhorroTotal) * 100) || 0;
+            const porcAhorro = Math.round(((dewinAhorroVal + ahorroLili) / metaAhorTotal) * 100) || 0;
             document.getElementById('ahorro-porcentaje').innerText = `${porcAhorro}%`;
             document.getElementById('ahorro-barra').style.width = `${porcAhorro}%`;
         }
@@ -325,8 +327,4 @@
         async function subirDatosNube() {
             marcarIconoNube('cargando');
             const payload = {
-                gastos: memoriaGastos,
-                ahorroDewin: parseInt(document.getElementById('range-dewin').value || 0),
-                ahorrosLili: {
-                    sem1: document.getElementById('sem1').checked,
-                    sem2: docum
+                gastos: memoriaGast
