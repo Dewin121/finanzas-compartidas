@@ -1,354 +1,395 @@
- 
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Finanzas en Vivo - Lili & Dewin</title>
-    <!-- CSS de Tailwind v3 estándar -->
-    <script src="https://cdn.tailwindcss.com"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Finanzas en pareja</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg: #f5f3ef; --white: #ffffff; --border: #e2ddd5; --text: #1a1a18;
+  --muted: #9a9485; --r: 14px;
+  --d: #2563eb; --d-bg: #eff6ff; --d-border: #bfdbfe;
+  --e: #db2777; --e-bg: #fdf2f8; --e-border: #fbcfe8;
+  --ok: #16a34a; --ok-bg: #f0fdf4;
+  --warn: #d97706; --warn-bg: #fffbeb;
+  --danger: #dc2626; --danger-bg: #fef2f2;
+}
+body { background: var(--bg); color: var(--text); font-family: 'Syne', sans-serif; min-height: 100vh; padding-bottom: 5rem; }
+
+/* HEADER */
+header {
+  background: var(--text); color: #fff; padding: 1rem 1.1rem;
+  display: flex; align-items: center; justify-content: space-between;
+  position: sticky; top: 0; z-index: 100;
+}
+.header-left { display: flex; align-items: center; gap: 0.6rem; }
+.header-title { font-family: 'Instrument Serif', serif; font-size: 1.2rem; font-style: italic; }
+.sync-pill {
+  display: flex; align-items: center; gap: 0.35rem;
+  font-size: 0.6rem; color: #9ca3af; padding: 0.25rem 0.6rem;
+  background: rgba(255,255,255,0.08); border-radius: 999px;
+}
+.sync-dot { width: 7px; height: 7px; border-radius: 50%; background: #6b7280; transition: background 0.3s; }
+.sync-dot.ok      { background: #22c55e; }
+.sync-dot.loading { background: var(--d); animation: blink 1s infinite; }
+.sync-dot.error   { background: var(--danger); }
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
+
+/* TABS */
+.tabs {
+  display: flex; background: var(--white); border-bottom: 1px solid var(--border);
+  position: sticky; top: 52px; z-index: 99; overflow-x: auto;
+}
+.tab {
+  flex: 1; min-width: 60px; padding: 0.7rem 0.4rem; text-align: center;
+  font-size: 0.65rem; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase;
+  color: var(--muted); border: none; border-bottom: 2px solid transparent;
+  background: none; cursor: pointer; white-space: nowrap; transition: all 0.15s;
+}
+.tab.active { color: var(--text); border-bottom-color: var(--text); }
+
+/* PAGES */
+.page { display: none; padding: 1rem; }
+.page.active { display: block; }
+
+/* CARD */
+.card { background: var(--white); border: 1px solid var(--border); border-radius: var(--r); padding: 1.1rem; margin-bottom: 0.8rem; }
+.card-title { font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); margin-bottom: 0.8rem; font-weight: 700; }
+
+/* MONTH NAV */
+.month-nav {
+  display: flex; align-items: center; justify-content: space-between;
+  background: var(--white); border: 1px solid var(--border); border-radius: 10px;
+  padding: 0.55rem 0.9rem; margin-bottom: 0.7rem;
+}
+.month-nav button { background: none; border: none; color: var(--muted); font-size: 1.1rem; cursor: pointer; }
+.month-nav button:hover { color: var(--text); }
+.month-name { font-family: 'Instrument Serif', serif; font-size: 0.95rem; }
+
+/* BALANCE */
+.balance-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.6rem; margin-bottom: 0.8rem; }
+.balance-box { border-radius: 10px; padding: 0.9rem; }
+.balance-box.d { background: var(--d-bg); border: 1px solid var(--d-border); }
+.balance-box.e { background: var(--e-bg); border: 1px solid var(--e-border); }
+.bb-label { font-size: 0.62rem; font-weight: 700; margin-bottom: 0.25rem; }
+.balance-box.d .bb-label { color: var(--d); }
+.balance-box.e .bb-label { color: var(--e); }
+.bb-val { font-family: 'Instrument Serif', serif; font-size: 1.35rem; line-height: 1; }
+.balance-box.d .bb-val { color: #1e3a8a; }
+.balance-box.e .bb-val { color: #831843; }
+.bb-sub { font-size: 0.58rem; color: var(--muted); margin-top: 0.15rem; }
+
+/* PROGRESS */
+.prog-wrap { margin-bottom: 0.6rem; }
+.prog-label { display: flex; justify-content: space-between; font-size: 0.63rem; margin-bottom: 0.28rem; }
+.prog-label .pl { color: var(--muted); }
+.prog-label .pv { font-weight: 700; }
+.prog-bar  { height: 5px; background: var(--border); border-radius: 3px; overflow: hidden; }
+.prog-fill { height: 100%; border-radius: 3px; transition: width 0.5s ease; }
+.fd { background: var(--d); } .fe { background: var(--e); } .fok { background: var(--ok); }
+
+/* GASTO LIST */
+.gasto-list { display: flex; flex-direction: column; gap: 0.4rem; }
+.gasto-item {
+  background: var(--white); border: 1px solid var(--border); border-radius: 12px;
+  padding: 0.75rem 0.85rem; display: flex; align-items: center; gap: 0.6rem;
+  transition: opacity 0.2s, border-color 0.2s;
+}
+.gasto-item.pagado  { opacity: 0.5; border-color: var(--ok); }
+.gasto-item.hoy     { border-color: var(--warn); }
+.gasto-item.vencido { border-color: var(--danger); }
+.gi-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; border: 1.5px solid var(--border); }
+.gasto-item.pagado  .gi-dot { background: var(--ok); border-color: var(--ok); }
+.gasto-item.hoy     .gi-dot { background: var(--warn); border-color: var(--warn); animation: blink 1.5s infinite; }
+.gasto-item.vencido .gi-dot { background: var(--danger); border-color: var(--danger); animation: blink 1.5s infinite; }
+.gi-info { flex: 1; min-width: 0; }
+.gi-name { font-size: 0.82rem; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.gi-meta { font-size: 0.6rem; color: var(--muted); margin-top: 0.15rem; display: flex; gap: 0.35rem; flex-wrap: wrap; align-items: center; }
+.gi-right { display: flex; flex-direction: column; align-items: flex-end; gap: 0.28rem; flex-shrink: 0; }
+.gi-monto { font-size: 0.82rem; font-weight: 700; }
+.gi-check {
+  width: 24px; height: 24px; border: 1.5px solid var(--border); border-radius: 50%;
+  background: none; cursor: pointer; display: flex; align-items: center; justify-content: center;
+  font-size: 0.7rem; color: var(--muted); transition: all 0.15s;
+}
+.gi-check:hover { border-color: var(--ok); color: var(--ok); }
+.gi-check.ck { background: var(--ok); border-color: var(--ok); color: #fff; font-weight: 700; }
+
+/* BADGE */
+.badge {
+  font-size: 0.52rem; padding: 0.1rem 0.38rem; border-radius: 999px;
+  font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; white-space: nowrap; display: inline-flex;
+}
+.bd   { background: var(--d-bg); color: var(--d); }
+.be   { background: var(--e-bg); color: var(--e); }
+.bhoy { background: var(--warn-bg); color: var(--warn); }
+.bvenc{ background: var(--danger-bg); color: var(--danger); }
+.bdia { background: #f1f5f9; color: #64748b; }
+.bok  { background: var(--ok-bg); color: var(--ok); }
+
+.group-title {
+  font-size: 0.58rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted);
+  margin: 0.9rem 0 0.4rem; display: flex; align-items: center; gap: 0.5rem;
+}
+.group-title::after { content:''; flex:1; height:1px; background:var(--border); }
+
+/* AHORRO */
+.ahorro-hero {
+  background: var(--text); color: #fff; border-radius: var(--r);
+  padding: 1.2rem; text-align: center; margin-bottom: 0.8rem;
+}
+.ah-label { font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.1em; color: #9ca3af; margin-bottom: 0.3rem; }
+.ah-total { font-family: 'Instrument Serif', serif; font-size: 2.4rem; color: #fbbf24; line-height: 1; }
+.ah-sub   { font-size: 0.63rem; color: #9ca3af; margin-top: 0.3rem; }
+
+.ahorro-box { background: var(--white); border: 1px solid var(--border); border-radius: 12px; padding: 1rem; margin-bottom: 0.6rem; }
+.ahorro-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem; }
+.ahorro-name { font-size: 0.8rem; font-weight: 700; display: flex; align-items: center; gap: 0.4rem; }
+.ahorro-val  { font-family: 'Instrument Serif', serif; font-size: 1.1rem; }
+.ahorro-hint { font-size: 0.62rem; color: var(--muted); margin-bottom: 0.5rem; }
+
+.sem-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 0.45rem; margin-top: 0.4rem; }
+.sem-btn {
+  display: flex; flex-direction: column; align-items: center; padding: 0.55rem 0.2rem;
+  border-radius: 10px; border: 1.5px solid var(--border); background: var(--bg);
+  cursor: pointer; transition: all 0.15s; gap: 0.1rem;
+}
+.sem-btn .sl { font-size: 0.58rem; color: var(--muted); font-weight: 600; }
+.sem-btn .sv { font-size: 0.65rem; font-weight: 700; }
+.sem-btn.on { border-color: var(--e); background: var(--e-bg); }
+.sem-btn.on .sl,.sem-btn.on .sv { color: var(--e); }
+
+.hist-item {
+  background: var(--white); border: 1px solid var(--border); border-radius: 10px;
+  padding: 0.65rem 0.85rem; display: flex; align-items: center; gap: 0.55rem; margin-bottom: 0.4rem;
+}
+.hd { font-size: 0.78rem; font-weight: 700; }
+.hm { font-size: 0.58rem; color: var(--muted); }
+.hv { font-size: 0.82rem; font-weight: 700; color: var(--ok); white-space: nowrap; }
+.hdel { background: none; border: none; color: var(--border); cursor: pointer; font-size: 0.78rem; margin-left: 0.2rem; transition: color 0.15s; }
+.hdel:hover { color: var(--danger); }
+
+/* METAS */
+.meta-card { background: var(--white); border: 1px solid var(--border); border-radius: 12px; padding: 1rem; margin-bottom: 0.7rem; }
+.meta-head { display: flex; justify-content: space-between; margin-bottom: 0.6rem; }
+.meta-name { font-size: 0.88rem; font-weight: 700; }
+.meta-obj  { font-size: 0.6rem; color: var(--muted); margin-top: 0.1rem; }
+.meta-pct  { font-family: 'Instrument Serif', serif; font-size: 1.35rem; color: var(--ok); }
+.meta-bar  { height: 5px; background: var(--border); border-radius: 3px; overflow: hidden; margin-bottom: 0.45rem; }
+.meta-fill { height: 100%; background: linear-gradient(90deg,var(--ok),#4ade80); border-radius: 3px; transition: width 0.5s; }
+.meta-foot { display: flex; justify-content: space-between; font-size: 0.6rem; color: var(--muted); }
+.meta-del  { background: none; border: none; font-size: 0.6rem; color: var(--border); cursor: pointer; margin-top: 0.35rem; display: block; transition: color 0.15s; }
+.meta-del:hover { color: var(--danger); }
+
+/* CONFIGURACIÓN */
+.config-section { margin-bottom: 1.2rem; }
+.config-section-title {
+  font-size: 0.62rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted);
+  font-weight: 700; margin-bottom: 0.6rem; display: flex; align-items: center; justify-content: space-between;
+}
+.config-item {
+  background: var(--white); border: 1px solid var(--border); border-radius: 10px;
+  padding: 0.8rem 1rem; margin-bottom: 0.4rem; display: flex; align-items: center; gap: 0.7rem;
+}
+.config-item-info { flex: 1; min-width: 0; }
+.config-item-name { font-size: 0.82rem; font-weight: 700; }
+.config-item-sub  { font-size: 0.6rem; color: var(--muted); margin-top: 0.1rem; }
+.config-item-right { display: flex; gap: 0.35rem; flex-shrink: 0; }
+.icon-btn {
+  width: 28px; height: 28px; border-radius: 8px; border: 1px solid var(--border);
+  background: var(--bg); cursor: pointer; display: flex; align-items: center; justify-content: center;
+  font-size: 0.75rem; transition: all 0.15s; color: var(--muted);
+}
+.icon-btn:hover { border-color: var(--d); color: var(--d); }
+.icon-btn.del:hover { border-color: var(--danger); color: var(--danger); }
+
+/* GENERAL SETTINGS */
+.setting-row {
+  background: var(--white); border: 1px solid var(--border); border-radius: 10px;
+  padding: 0.8rem 1rem; margin-bottom: 0.4rem; display: flex; align-items: center; justify-content: space-between;
+}
+.sr-label { font-size: 0.78rem; font-weight: 600; }
+.sr-sub   { font-size: 0.6rem; color: var(--muted); }
+.sr-val   { font-size: 0.82rem; font-weight: 700; color: var(--d); }
+
+/* BUTTONS */
+.add-btn {
+  width: 100%; background: var(--bg); border: 1.5px dashed var(--border);
+  color: var(--muted); border-radius: 10px; padding: 0.7rem; font-family: 'Syne', sans-serif;
+  font-size: 0.7rem; font-weight: 700; letter-spacing: 0.05em; cursor: pointer;
+  transition: all 0.15s; margin-top: 0.5rem;
+}
+.add-btn:hover { border-color: var(--d); color: var(--d); }
+.primary-btn {
+  width: 100%; background: var(--text); color: #fff; border: none; border-radius: 10px;
+  padding: 0.78rem; font-family: 'Syne', sans-serif; font-weight: 700; font-size: 0.85rem;
+  cursor: pointer; transition: opacity 0.15s; margin-top: 0.4rem;
+}
+.primary-btn:hover { opacity: 0.85; }
+.danger-btn {
+  width: 100%; background: none; border: 1px solid var(--danger); color: var(--danger);
+  border-radius: 10px; padding: 0.7rem; font-family: 'Syne', sans-serif; font-weight: 700;
+  font-size: 0.78rem; cursor: pointer; transition: all 0.15s; margin-top: 0.4rem;
+}
+.danger-btn:hover { background: var(--danger-bg); }
+.reset-btn {
+  background: none; border: 1px solid var(--border); color: var(--muted);
+  padding: 0.4rem 0.75rem; border-radius: 8px; font-family: 'Syne', sans-serif;
+  font-size: 0.6rem; cursor: pointer; margin-top: 0.6rem; display: block; margin-left: auto;
+  transition: all 0.15s;
+}
+.reset-btn:hover { border-color: var(--danger); color: var(--danger); }
+
+/* MODAL */
+.modal-bg {
+  display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5);
+  z-index: 200; align-items: flex-end; justify-content: center;
+}
+.modal-bg.open { display: flex; }
+.modal {
+  background: var(--white); border-radius: 20px 20px 0 0;
+  padding: 1.4rem 1.2rem 2.2rem; width: 100%; max-width: 480px;
+  animation: slideUp 0.25s ease; max-height: 90vh; overflow-y: auto;
+}
+@keyframes slideUp { from{transform:translateY(100%);opacity:0} to{transform:translateY(0);opacity:1} }
+.modal-title { font-family: 'Instrument Serif', serif; font-size: 1.2rem; margin-bottom: 1rem; }
+.field { margin-bottom: 0.8rem; }
+.field label { display: block; font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); margin-bottom: 0.3rem; font-weight: 700; }
+.field input, .field select {
+  width: 100%; background: var(--bg); border: 1px solid var(--border); color: var(--text);
+  padding: 0.62rem 0.82rem; border-radius: 8px; font-family: 'Syne', sans-serif;
+  font-size: 0.86rem; outline: none; transition: border-color 0.15s;
+}
+.field input:focus, .field select:focus { border-color: var(--d); }
+.field select option { background: var(--white); }
+.field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.6rem; }
+.modal-btns { display: flex; gap: 0.6rem; margin-top: 1rem; }
+.btn-ok { flex:1; background: var(--text); color: #fff; border: none; padding: 0.75rem; border-radius: 8px; font-family: 'Syne', sans-serif; font-weight: 700; font-size: 0.85rem; cursor: pointer; }
+.btn-no { background: none; border: 1px solid var(--border); color: var(--muted); padding: 0.75rem 1rem; border-radius: 8px; font-family: 'Syne', sans-serif; font-size: 0.85rem; cursor: pointer; }
+
+.toast {
+  position: fixed; bottom: 1.5rem; left: 50%; transform: translateX(-50%);
+  background: var(--text); color: #fff; padding: 0.52rem 1.1rem; border-radius: 999px;
+  font-size: 0.73rem; font-weight: 700; z-index: 300;
+  opacity: 0; transition: opacity 0.3s; pointer-events: none; white-space: nowrap;
+}
+.toast.show { opacity: 1; }
+.empty { text-align: center; padding: 2rem 1rem; color: var(--muted); font-size: 0.78rem; }
+.chip {
+  display: inline-flex; align-items: center; gap: 0.25rem;
+  font-size: 0.6rem; font-weight: 700; padding: 0.18rem 0.5rem;
+  border-radius: 999px; text-transform: uppercase; letter-spacing: 0.04em;
+}
+.chip-d { background: var(--d-bg); color: var(--d); }
+.chip-e { background: var(--e-bg); color: var(--e); }
+.chip-c { background: #f1f5f9; color: #475569; }
+</style>
 </head>
-<body class="bg-slate-50 text-slate-800 font-sans min-h-screen pb-12">
+<body>
 
-    <!-- Encabezado -->
-    <header class="bg-gradient-to-r from-blue-600 to-indigo-600 text-white py-5 px-4 shadow-md rounded-b-2xl">
-        <div class="max-w-md mx-auto flex justify-between items-center">
-            <div>
-                <h1 class="text-xl font-bold tracking-tight">Control Financiero ☁️</h1>
-                <p class="text-xs text-blue-100 mt-0.5">Sincronización Activa</p>
-            </div>
-            <div id="indicador-nube" class="w-8 h-8 rounded-full bg-emerald-500 flex items-center justify-center text-white text-xs font-bold">
-                ✓
-            </div>
-        </div>
-    </header>
+<header>
+  <div class="header-left">
+    <div class="header-title" id="headerTitle">Finanzas</div>
+  </div>
+  <div class="sync-pill">
+    <div class="sync-dot" id="syncDot"></div>
+    <span id="syncTxt">—</span>
+  </div>
+</header>
 
-    <main class="max-w-md mx-auto px-4 mt-6 space-y-6">
+<div class="tabs">
+  <button class="tab active" onclick="showTab('pagos',this)">Pagos</button>
+  <button class="tab" onclick="showTab('ahorro',this)">Ahorro</button>
+  <button class="tab" onclick="showTab('metas',this)">Metas</button>
+  <button class="tab" onclick="showTab('config',this)">⚙ Config</button>
+</div>
 
-        <!-- DASHBOARD GENERAL -->
-        <section class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100">
-            <h2 class="text-sm font-semibold uppercase tracking-wider text-slate-400 mb-4">
-                📊 Balance del Mes
-            </h2>
-            
-            <div class="grid grid-cols-2 gap-4 mb-5">
-                <div class="bg-blue-50 p-3.5 rounded-xl border border-blue-100/50">
-                    <span class="text-xs text-blue-600 font-medium block mb-1">Obligación Dewin</span>
-                    <span id="total-dewin" class="text-lg font-bold text-blue-950">$0</span>
-                </div>
-                <div class="bg-pink-50 p-3.5 rounded-xl border border-pink-100/50">
-                    <span class="text-xs text-pink-600 font-medium block mb-1">Obligación Lili</span>
-                    <span id="total-lili" class="text-lg font-bold text-pink-950">$0</span>
-                </div>
-            </div>
+<!-- ── PAGOS ── -->
+<div id="tab-pagos" class="page active">
+  <div class="month-nav">
+    <button onclick="changeMonth(-1)">‹</button>
+    <div class="month-name" id="monthLabel"></div>
+    <button onclick="changeMonth(1)">›</button>
+  </div>
+  <div class="card">
+    <div class="card-title">Balance del mes</div>
+    <div class="balance-grid">
+      <div class="balance-box d">
+        <div class="bb-label" id="lblD">—</div>
+        <div class="bb-val" id="totD">$0</div>
+        <div class="bb-sub" id="pagD">$0 pagados</div>
+      </div>
+      <div class="balance-box e">
+        <div class="bb-label" id="lblE">—</div>
+        <div class="bb-val" id="totE">$0</div>
+        <div class="bb-sub" id="pagE">$0 pagados</div>
+      </div>
+    </div>
+    <div class="prog-wrap">
+      <div class="prog-label"><span class="pl">Progreso pagos</span><span class="pv" id="pctPag" style="color:var(--d)">0%</span></div>
+      <div class="prog-bar"><div class="prog-fill fd" id="barPag" style="width:0%"></div></div>
+    </div>
+    <div class="prog-wrap" style="margin-bottom:0">
+      <div class="prog-label"><span class="pl">Meta ahorro del mes</span><span class="pv" id="pctAh" style="color:var(--ok)">0%</span></div>
+      <div class="prog-bar"><div class="prog-fill fok" id="barAh" style="width:0%"></div></div>
+    </div>
+  </div>
+  <div id="payGroups"></div>
+  <button class="add-btn" onclick="openModal('pago')">+ Gasto extra este mes</button>
+  <button class="reset-btn" onclick="resetMes()">↺ Reiniciar mes</button>
+</div>
 
-            <!-- Barras de Progreso -->
-            <div class="space-y-4">
-                <div>
-                    <div class="flex justify-between text-xs font-medium mb-1.5">
-                        <span class="text-slate-600">Progreso Total de Pagos</span>
-                        <span id="pago-porcentaje" class="text-blue-600 font-bold">0%</span>
-                    </div>
-                    <div class="w-full bg-slate-100 rounded-full h-2.5 overflow-hidden">
-                        <div id="pago-barra" class="bg-blue-600 h-2.5 rounded-full" style="width: 0%"></div>
-                    </div>
-                </div>
+<!-- ── AHORRO ── -->
+<div id="tab-ahorro" class="page">
+  <div class="ahorro-hero">
+    <div class="ah-label">Total en la alcancía</div>
+    <div class="ah-total" id="ahTot">$0</div>
+    <div class="ah-sub" id="ahSub">0 aportes</div>
+  </div>
+  <div class="ahorro-box">
+    <div class="ahorro-head">
+      <div class="ahorro-name"><span id="dotD" style="width:8px;height:8px;border-radius:50%;background:var(--d);display:inline-block"></span><span id="ahNomD">Persona 1</span></div>
+      <div class="ahorro-val" style="color:var(--d)" id="ahD">$0</div>
+    </div>
+    <div class="ahorro-hint" id="ahHintD">Sugerido: —</div>
+    <div class="prog-bar"><div class="prog-fill fd" id="barAhD" style="width:0%"></div></div>
+    <div style="font-size:0.58rem;color:var(--muted);text-align:right;margin-top:0.2rem" id="barAhDlbl"></div>
+  </div>
+  <div class="ahorro-box">
+    <div class="ahorro-head">
+      <div class="ahorro-name"><span style="width:8px;height:8px;border-radius:50%;background:var(--e);display:inline-block"></span><span id="ahNomE">Persona 2</span></div>
+      <div class="ahorro-val" style="color:var(--e)" id="ahE">$0</div>
+    </div>
+    <div class="ahorro-hint" id="ahHintE">Sugerido: —</div>
+    <div class="sem-grid" id="semGrid"></div>
+  </div>
+  <button class="add-btn" onclick="openModal('ahorro')">+ Registrar aporte</button>
+  <div class="group-title">Historial</div>
+  <div id="histList"></div>
+</div>
 
-                <div>
-                    <div class="flex justify-between text-xs font-medium mb-1.5">
-                        <span class="text-slate-600">Meta de Ahorro Mutuo</span>
-                        <span id="ahorro-porcentaje" class="text-emerald-600 font-bold">0%</span>
-                    </div>
-                    <div class="w-full bg-slate-100 rounded-full h-2.5 overflow-hidden">
-                        <div id="ahorro-barra" class="bg-emerald-500 h-2.5 rounded-full" style="width: 0%"></div>
-                    </div>
-                </div>
-            </div>
-        </section>
+<!-- ── METAS ── -->
+<div id="tab-metas" class="page">
+  <div class="group-title">Sus metas</div>
+  <div id="metaList"></div>
+  <button class="add-btn" onclick="openModal('meta')">+ Nueva meta</button>
+</div>
 
-        <!-- LISTA DE GASTOS -->
-        <section class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
-            <div class="p-5 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
-                <div>
-                    <h2 class="text-sm font-semibold uppercase tracking-wider text-slate-400">
-                        📋 Gastos Distribuidos
-                    </h2>
-                </div>
-                <div class="flex gap-2">
-                    <button onclick="abrirCreador()" class="text-xs bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded-lg font-bold shadow-sm">
-                        ➕ Añadir Gasto
-                    </button>
-                    <button onclick="forzarReseteoBaseDatos()" class="text-xs bg-slate-200 hover:bg-slate-300 px-3 py-2 rounded-lg font-medium text-slate-600">
-                        🔄 Cargar Base
-                    </button>
-                </div>
-            </div>
+<!-- ── CONFIG ── -->
+<div id="tab-config" class="page">
 
-            <div class="divide-y divide-slate-100 min-h-[100px] bg-white" id="lista-gastos">
-                <div class="p-8 text-center text-slate-400 text-sm">Ejecutando script ultra-compatible...</div>
-            </div>
-        </section>
-
-        <!-- MODAL ÚNICO PARA CREACIÓN / EDICIÓN -->
-        <div id="modal-editor" class="hidden fixed inset-0 bg-slate-900/40 flex items-center justify-center p-4 z-50">
-            <div class="bg-white w-full max-w-sm rounded-2xl p-5 shadow-xl space-y-4">
-                <div class="flex justify-between items-center">
-                    <h3 id="edit-titulo" class="text-sm font-bold text-slate-700 uppercase tracking-wide">Formulario de Gasto</h3>
-                    <button onclick="cerrarEditor()" class="text-slate-400 hover:text-slate-600 font-bold text-xl">&times;</button>
-                </div>
-                
-                <input type="hidden" id="edit-id">
-                
-                <div>
-                    <label class="block text-xs font-semibold text-slate-500 mb-1">Nombre del Gasto</label>
-                    <input type="text" id="edit-nombre" class="w-full bg-slate-50 border border-slate-200 rounded-lg p-2 text-sm font-medium focus:outline-none">
-                </div>
-
-                <div class="grid grid-cols-2 gap-3">
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-500 mb-1">Monto ($)</label>
-                        <input type="number" id="edit-monto" class="w-full bg-slate-50 border border-slate-200 rounded-lg p-2 text-sm font-bold">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-500 mb-1">Responsable</label>
-                        <select id="edit-responsable" class="w-full bg-slate-50 border border-slate-200 rounded-lg p-2 text-sm font-medium">
-                            <option value="Dewin">Dewin</option>
-                            <option value="Lili">Lili</option>
-                        </select>
-                    </div>
-                </div>
-
-                <div class="grid grid-cols-2 gap-3">
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-500 mb-1">Cuotas Restantes</label>
-                        <input type="text" id="edit-cuotas" class="w-full bg-slate-50 border border-slate-200 rounded-lg p-2 text-sm" placeholder="Ej: N/A">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-500 mb-1">Día / Frecuencia</label>
-                        <input type="text" id="edit-fecha" class="w-full bg-slate-50 border border-slate-200 rounded-lg p-2 text-sm" placeholder="Ej: Mes">
-                    </div>
-                </div>
-
-                <button onclick="guardarGastoEstructura()" class="w-full bg-blue-600 hover:bg-blue-700 text-white p-2.5 text-sm font-bold rounded-xl shadow-md">
-                    🚀 Guardar Gasto
-                </button>
-            </div>
-        </div>
-
-        <!-- SECCIÓN DE AHORROS -->
-        <section class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100">
-            <h2 class="text-sm font-semibold uppercase tracking-wider text-slate-400 mb-4">
-                🐷 Fondos de Ahorro Ajustados
-            </h2>
-
-            <div class="space-y-4">
-                <div class="p-3 bg-slate-50 rounded-xl border border-slate-200/60">
-                    <div class="flex justify-between items-center mb-2">
-                        <span class="text-xs font-bold text-slate-700 flex items-center gap-1.5">
-                            <span class="w-1.5 h-1.5 rounded-full bg-blue-500"></span> Dewin (Mensual fijo)
-                        </span>
-                        <span class="text-xs text-slate-500 font-medium" id="txt-ahorro-dewin">$0 / $400.000</span>
-                    </div>
-                    <input type="range" id="range-dewin" min="0" max="400000" step="50000" value="0" class="w-full accent-blue-600 h-1.5 bg-slate-200 rounded-lg appearance-none" onchange="subirDatosNube()">
-                </div>
-
-                <div class="p-3 bg-slate-50 rounded-xl border border-slate-200/60">
-                    <div class="flex justify-between items-center mb-2">
-                        <span class="text-xs font-bold text-slate-700 flex items-center gap-1.5">
-                            <span class="w-1.5 h-1.5 rounded-full bg-pink-500"></span> Lili (Semanal - $90k c/u)
-                        </span>
-                        <span class="text-xs text-slate-500 font-medium" id="txt-ahorro-lili">$0 / $360.000</span>
-                    </div>
-                    <div class="grid grid-cols-4 gap-2 mt-2">
-                        <label id="lbl-sem1" class="flex flex-col items-center p-2 bg-white rounded-lg border border-slate-200 select-none">
-                            <span class="text-[10px] text-slate-400 font-medium">Sem 1</span>
-                            <span class="text-[11px] font-bold text-slate-700 mt-0.5">$90k</span>
-                            <input type="checkbox" id="sem1" class="hidden" value="90000" onchange="subirDatosNube()">
-                        </label>
-                        <label id="lbl-sem2" class="flex flex-col items-center p-2 bg-white rounded-lg border border-slate-200 select-none">
-                            <span class="text-[10px] text-slate-400 font-medium">Sem 2</span>
-                            <span class="text-[11px] font-bold text-slate-700 mt-0.5">$90k</span>
-                            <input type="checkbox" id="sem2" class="hidden" value="90000" onchange="subirDatosNube()">
-                        </label>
-                        <label id="lbl-sem3" class="flex flex-col items-center p-2 bg-white rounded-lg border border-slate-200 select-none">
-                            <span class="text-[10px] text-slate-400 font-medium">Sem 3</span>
-                            <span class="text-[11px] font-bold text-slate-700 mt-0.5">$90k</span>
-                            <input type="checkbox" id="sem3" class="hidden" value="90000" onchange="subirDatosNube()">
-                        </label>
-                        <label id="lbl-sem4" class="flex flex-col items-center p-2 bg-white rounded-lg border border-slate-200 select-none">
-                            <span class="text-[10px] text-slate-400 font-medium">Sem 4</span>
-                            <span class="text-[11px] font-bold text-slate-700 mt-0.5">$90k</span>
-                            <input type="checkbox" id="sem4" class="hidden" value="90000" onchange="subirDatosNube()">
-                        </label>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- CONSOLA DE DIAGNÓSTICO -->
-        <section class="bg-slate-900 text-amber-400 p-4 rounded-2xl shadow-inner font-mono text-[11px] border-2 border-slate-800">
-            <div class="flex justify-between items-center border-b border-slate-800 pb-1.5 mb-1.5 text-slate-400">
-                <span>🖥️ CONSOLA DE DIAGNÓSTICO</span>
-                <button onclick="document.getElementById('log-terminal').innerHTML=''" class="text-[9px] bg-slate-800 px-1.5 py-0.5 rounded text-white">Limpiar</button>
-            </div>
-            <div id="log-terminal" class="space-y-1 max-h-[120px] overflow-y-auto">
-                <div>[Sistema] Esperando inicialización...</div>
-            </div>
-        </section>
-
-    </main>
-
-    <script>
-        // Manejador de errores tradicional
-        window.onerror = function(msg, url, line) {
-            var t = document.getElementById('log-terminal');
-            if (t) {
-                t.innerHTML += '<div class="text-red-400 font-bold">[ERR L' + line + '] ' + msg + '</div>';
-            }
-            return false;
-        };
-
-        var FIREBASE_BASE_URL = "https://finanza-88b8e-default-rtdb.firebaseio.com/finanzas.json";
-
-        var gastosPorDefecto = {
-            "g1": { id: "g1", nombre: 'Mercado Semanal', monto: 125000, responsable: 'Lili', cuotas: 'N/A', fecha: 'Semanal', pagado: false },
-            "g2": { id: "g2", nombre: 'Apoyo Madre', monto: 25000, responsable: 'Lili', cuotas: 'N/A', fecha: 'Semanal', pagado: false },
-            "g3": { id: "g3", nombre: 'Merienda Valentina', monto: 5000, responsable: 'Lili', cuotas: 'N/A', fecha: 'Semanal', pagado: false },
-            "g4": { id: "g4", nombre: 'Internet', monto: 60000, responsable: 'Lili', cuotas: 'N/A', fecha: 'Mes', pagado: false },
-            "g5": { id: "g5", nombre: 'Transporte Lili', monto: 240000, responsable: 'Lili', cuotas: 'N/A', fecha: 'Mes', pagado: false },
-            "g6": { id: "g6", nombre: 'Arriendo', monto: 370000, responsable: 'Dewin', cuotas: 'N/A', fecha: 'Mes', pagado: false },
-            "g7": { id: "g7", nombre: 'Luz', monto: 220000, responsable: 'Dewin', cuotas: 'Mes', pagado: false },
-            "g8": { id: "g8", nombre: 'Addi', monto: 216000, responsable: 'Dewin', cuotas: '3', fecha: '10', pagado: false },
-            "g9": { id: "g9", nombre: 'Tarjeta', monto: 256000, responsable: 'Dewin', cuotas: 'N/A', fecha: '17', pagado: false },
-            "g10": { id: "g10", nombre: 'Bancolombia', monto: 253000, responsable: 'Dewin', cuotas: '12', fecha: '01', pagado: false },
-            "g11": { id: "g11", nombre: 'Transporte Dewin', monto: 288000, responsable: 'Dewin', cuotas: 'N/A', fecha: 'Mes', pagado: false }
-        };
-
-        var memoriaGastos = {};
-        var metaAhorTotal = 760000;
-
-        function imprimirLog(texto, esError) {
-            var t = document.getElementById('log-terminal');
-            if (t) {
-                var color = esError ? 'text-red-400 font-bold' : 'text-emerald-400';
-                var hora = new Date().toLocaleTimeString();
-                t.innerHTML += '<div class="' + color + '">[' + hora + '] ' + texto + '</div>';
-                t.scrollTop = t.scrollHeight;
-            }
-        }
-
-        function inicializarApp() {
-            try {
-                imprimirLog("Iniciando entorno local...", false);
-                memoriaGastos = JSON.parse(JSON.stringify(gastosPorDefecto));
-                renderizarInterfazLocal(null);
-                imprimirLog("Interfaz inicializada de forma segura.", false);
-                
-                descargarDatosNube();
-                setInterval(descargarDatosNube, 12000);
-            } catch (e) {
-                imprimirLog("Error en inicialización: " + e.message, true);
-            }
-        }
-
-        function descargarDatosNube() {
-            try {
-                var urlAntiCache = FIREBASE_BASE_URL + "?v=" + Date.now();
-                imprimirLog("Llamando a Firebase...", false);
-                
-                fetch(urlAntiCache)
-                    .then(function(res) {
-                        if (!res.ok) throw new Error("HTTP " + res.status);
-                        return res.json();
-                    })
-                    .then(function(data) {
-                        imprimirLog("Datos crudos obtenidos de la nube.", false);
-                        if (data && data.gastos) {
-                            var datosFormateados = {};
-                            
-                            if (Array.isArray(data.gastos)) {
-                                imprimirLog("Estructura detectada: Arreglo.", false);
-                                data.gastos.forEach(function(g, idx) {
-                                    if (g) {
-                                        var idLimpio = g.id ? String(g.id) : "g_" + idx;
-                                        datosFormateados[idLimpio] = {
-                                            id: idLimpio,
-                                            nombre: g.nombre || 'Gasto',
-                                            monto: parseInt(g.monto) || 0,
-                                            responsable: g.responsable || 'Dewin',
-                                            cuotas: g.cuotas || 'N/A',
-                                            fecha: g.fecha || 'Mes',
-                                            pagado: g.pagado === true || g.pagado === "true"
-                                        };
-                                    }
-                                });
-                            } else if (typeof data.gastos === 'object') {
-                                imprimirLog("Estructura detectada: Objeto.", false);
-                                Object.keys(data.gastos).forEach(function(key) {
-                                    var g = data.gastos[key];
-                                    if (g) {
-                                        datosFormateados[key] = {
-                                            id: key,
-                                            nombre: g.nombre || 'Gasto',
-                                            monto: parseInt(g.monto) || 0,
-                                            responsable: g.responsable || 'Dewin',
-                                            cuotas: g.cuotas || 'N/A',
-                                            fecha: g.fecha || 'Mes',
-                                            pagado: g.pagado === true || g.pagado === "true"
-                                        };
-                                    }
-                                });
-                            }
-
-                            memoriaGastos = datosFormateados;
-                            renderizarInterfazLocal(data);
-                            marcarIconoNube('sincronizado');
-                            imprimirLog("Sincronización completa.", false);
-                        } else {
-                            imprimirLog("Estructura vacía. Usando valores por defecto.", false);
-                            renderizarInterfazLocal(null);
-                            marcarIconoNube('error');
-                        }
-                    })
-                    .catch(function(error) {
-                        imprimirLog("Error en procesamiento de red: " + error.message, true);
-                        renderizarInterfazLocal(null);
-                        marcarIconoNube('error');
-                    });
-            } catch (err) {
-                imprimirLog("Excepción en fetch: " + err.message, true);
-            }
-        }
-
-        function renderizarInterfazLocal(dataNube) {
-            try {
-                var contenedor = document.getElementById('lista-gastos');
-                if (!contenedor) return;
-                
-                var html = '';
-                var totalDewin = 0;
-                var totalLili = 0;
-                var totalPagado = 0;
-                var totalCostoMes = 0;
-
-                var llaves = Object.keys(memoriaGastos);
-
-                if (llaves.length === 0) {
-                    contenedor.innerHTML = '<div class="p-8 text-center text-slate-400 text-sm">No hay gastos en memoria.</div>';
-                    return;
-                }
-
-                llaves.forEach(function(key) {
-                    var gasto = memoriaGastos[key];
-                    if (!gasto) return;
-                    
-                    var isDewin = gasto.responsable === 'Dewin';
-                    var tagColor = isDewin ? 'bg-blue-50 text-blue-600 border-blue-100' : 'bg-pink-50 text-pink-600 border-pink-100';
-                    var textStyle = gasto.pagado ? 'line-through text-slate-300' : 'text-slate-800 font-semibold';
-                    
-                    totalCostoMes += parseInt(gasto.monto || 0);
-                    if (isDewin) {
-                        totalDewin += parseInt(gasto.monto || 0);
-                    } else {
-                        totalLili += parseInt(gasto.monto || 0);
-              
+  <!-- GENERAL -->
+  <div class="config-section">
+    <div class="config-section-title">General</div>
+    <div class="setting-row">
+      <div><div class="sr-label" id="cfgNomD">Persona 1</div><div class="sr-sub">Ingreso mensual</div></div>
+      <div class="sr-val" id="cfgIngD">—</div>
+    </div>
+    <div class="setting-row">
+      <div><div class="sr-label" id="cfgNomE">Persona 2</div><div class="sr-sub">Ingreso mensual</div></div>
+      <div class="sr-val" id="cfgIngE">—</div>
+    </div>
+    <div class="setting-row">
+      <div><div class="sr-label">Distribución</div><div class="sr-sub">Cómo se reparten los gastos compartidos</div></div>
